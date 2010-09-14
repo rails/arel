@@ -84,6 +84,17 @@ module Arel
         end
       end
 
+      it "maintains parent's engine" do
+        relation = Table.new(:users)
+        relation.as(:super_users).engine.should == relation.engine
+
+        relation = Table.new(:users, Sql::Engine.new)
+        relation.as(:super_users).engine.should == relation.engine
+
+        relation = Table.new(:users, :engine => Sql::Engine.new)
+        relation.as(:super_users).engine.should == relation.engine
+      end
+
     end
 
     describe '#column_for' do

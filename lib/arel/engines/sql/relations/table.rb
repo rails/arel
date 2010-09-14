@@ -32,7 +32,7 @@ module Arel
         end
       else
         @engine  = options # Table.new('foo', engine)
-        @options = {}
+        @options = {:engine => @engine}
       end
 
       if @engine.connection
