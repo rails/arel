@@ -188,6 +188,13 @@ module Arel
           Table.table_cache(relation.engine).key?(relation.name).must_equal true
         end
       end
+
+      it 'should pass existence test even if its prefixed by a schema name' do
+        [ 'second_db.users' ].each do |name|
+          relation = Table.new name
+          relation.send(:table_exists?).must_equal true
+        end
+      end
     end
   end
 end

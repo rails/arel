@@ -26,6 +26,10 @@ module Arel
       end
     end
 
+    def true_table_name(name)
+      name.to_s.gsub(/.*\./, '')
+    end
+
     def primary_key
       @primary_key ||= begin
         primary_key_name = @engine.connection.primary_key(name)
@@ -115,7 +119,7 @@ module Arel
     end
 
     def table_exists?
-      @table_exists ||= tables.key?(@name) || engine.connection.table_exists?(name)
+      @table_exists ||= tables.key?(true_table_name(@name)) || engine.connection.table_exists?(name)
     end
 
     def tables
