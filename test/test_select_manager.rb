@@ -638,5 +638,46 @@ module Arel
         manager.to_sql.must_be_like 'SELECT "users"."id" FROM "users"'
       end
     end
+
+    describe 'with' do
+      it 'takes an alias and a select manager' do
+        table   = Table.new :users
+        subquery_manager = Arel::SelectManager.new Table.engine
+        subquery_manager.from(table).project(SqlLiteral.new '*').where(table[:id].eq 1)
+
+        manager = Arel::SelectManager.new Table.engine
+        manager.from(Arel::Table.new(:u))
+        manager.with('u', subquery_manager)
+        manager.project(SqlLiteral.new '*')
+        manager.to_sql.must_be_like %{
+           WITH u AS (SELECT * FROM "users" WHERE "users"."id" = 1)
+           SELECT * FROM "u"
+        }
+      end
+
+      it 'allows chaining multiple with clauses' do
+        table1   = Table.new :users
+        table2   = Table.new :foods
+        alias1   = Table.new :u
+        alias2   = Table.new :f
+        subquery1_manager = Arel::SelectManager.new Table.engine
+        subquery1_manager.from(table1).project(SqlLiteral.new '*').where(table1[:id].eq 1)
+        subquery2_manager = Arel::SelectManager.new Table.engine
+        subquery2_manager.from(table2).project(SqlLiteral.new '*').where(table2[:id].in [1,2,3])
+
+        manager = Arel::SelectManager.new Table.engine
+        manager.from(Arel::Table.new(:u))
+        manager.with(alias1, subquery1_manager)
+        manager.with(alias2, subquery2_manager)
+        manager.project(SqlLiteral.new '*')
+        manager.join(alias2).on(alias1[:id].eq(alias2[:user_id]))
+        manager.to_sql.must_be_like %{
+           WITH
+             "u" AS (SELECT * FROM "users" WHERE "users"."id" = 1),
+             "f" AS (SELECT * FROM "foods" WHERE "foods"."id" IN (1, 2, 3))
+           SELECT * FROM "u" INNER JOIN "f" ON "u"."id" = "f"."user_id"
+        }
+      end
+    end
   end
 end

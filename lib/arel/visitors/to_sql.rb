@@ -126,6 +126,7 @@ module Arel
 
       def visit_Arel_Nodes_SelectCore o
         [
+          ("WITH #{o.withs.map {|x| visit x}.join(', ')}" unless o.withs.empty?),
           "SELECT #{o.projections.map { |x| visit x }.join ', '}",
           visit(o.source),
           ("WHERE #{o.wheres.map { |x| visit x }.join ' AND ' }" unless o.wheres.empty?),
@@ -187,6 +188,10 @@ module Arel
 
       def visit_Arel_Nodes_TableAlias o
         "#{visit o.relation} #{quote_table_name o.name}"
+      end
+
+      def visit_Arel_Nodes_With o
+        "#{visit o.name} AS (#{o.relation.to_sql})"
       end
 
       def visit_Arel_Nodes_Between o

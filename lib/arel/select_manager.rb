@@ -77,6 +77,11 @@ module Arel
       self
     end
 
+    def with aliaz, manager
+      aliaz = Nodes::SqlLiteral.new(aliaz) if String === aliaz
+      @ctx.withs << Nodes::With.new(aliaz, manager)
+    end
+
     def froms
       @ast.cores.map { |x| x.from }.compact
     end
