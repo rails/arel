@@ -159,7 +159,7 @@ module Arel
       it 'should return limit' do
         manager = Arel::SelectManager.new Table.engine
         manager.take 10
-        manager.taken.must_equal 10
+        manager.taken.value.must_equal 10
       end
     end
 
