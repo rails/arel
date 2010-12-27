@@ -1,3 +1,7 @@
+# Changes from 'official' Arel v2.0.6.
+
+This fork contains (branch 'mssql') patched Arel v2.0.6 to handle MSSQL. This fork based on work of James Abley (jabley) from https://github.com/jabley/arel.
+
 # ARel
 
 * http://github.com/rails/arel
