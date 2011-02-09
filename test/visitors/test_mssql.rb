@@ -14,12 +14,29 @@ module Arel
         sql.must_be_like "SELECT TOP 1"
       end
 
-      it 'uses TOP in updates with a limit' do
-        stmt = Nodes::UpdateStatement.new
-        stmt.limit = Nodes::Limit.new(1)
-        stmt.key = 'id'
-        sql = @visitor.accept(stmt)
-        sql.must_be_like "UPDATE NULL WHERE 'id' IN (SELECT TOP 1 'id' )"
+      describe 'updates' do
+        before do
+          @stmt = Nodes::UpdateStatement.new
+        end
+
+        describe 'with a limit' do
+          before do
+            @stmt.limit = Nodes::Limit.new(1)
+          end
+
+          it 'uses TOP in updates with a limit' do
+            @stmt.key = 'id'
+            sql = @visitor.accept(@stmt)
+            sql.must_be_like "UPDATE NULL WHERE 'id' IN (SELECT TOP 1 'id' )"
+          end
+
+          it 'passes where clauses into the subselect' do
+            @stmt.key = 'id'
+            @stmt.wheres << :x
+            sql = @visitor.accept(@stmt)
+            sql.must_be_like "UPDATE NULL WHERE 'id' IN (SELECT TOP 1 'id' WHERE 'x' )"
+          end
+        end
       end
 
     end
