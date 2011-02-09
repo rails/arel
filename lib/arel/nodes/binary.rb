@@ -29,6 +29,10 @@ module Arel
       NotEqual
       NotIn
       Or
+      Union
+      UnionAll
+      Intersect
+      Except
     }.each do |name|
       const_set name, Class.new(Binary)
     end

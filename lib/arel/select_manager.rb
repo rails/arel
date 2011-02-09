@@ -31,7 +31,7 @@ module Arel
 
     def where_clauses
       if $VERBOSE
-      warn "(#{caller.first}) where_clauses is deprecated and will be removed in arel 3.0.0 with no replacement"
+        warn "(#{caller.first}) where_clauses is deprecated and will be removed in arel 3.0.0 with no replacement"
       end
       to_sql = Visitors::ToSql.new @engine
       @ctx.wheres.map { |c| to_sql.accept c }
@@ -132,6 +132,37 @@ module Arel
 
       viz = Visitors::WhereSql.new @engine
       Nodes::SqlLiteral.new viz.accept @ctx
+    end
+
+    def union operation, other = nil
+      if other
+        node_class = Nodes.const_get("Union#{operation.to_s.capitalize}")
+      else
+        other = operation
+        node_class = Nodes::Union
+      end
+
+      node_class.new self.ast, other.ast
+    end
+
+    def intersect other
+      Nodes::Intersect.new ast, other.ast
+    end
+
+    def except other
+      Nodes::Except.new ast, other.ast
+    end
+    alias :minus :except
+
+    def with *subqueries
+      if subqueries.first.is_a? Symbol
+        node_class = Nodes.const_get("With#{subqueries.shift.to_s.capitalize}")
+      else
+        node_class = Nodes::With
+      end
+      @ast.with = node_class.new(subqueries.flatten)
+
+      self
     end
 
     def take limit

@@ -11,14 +11,6 @@ module Arel
         @last_column    = nil
         @quoted_tables  = {}
         @quoted_columns = {}
-        @column_cache   = Hash.new { |h,pool|
-          h[pool] = Hash.new { |conn_h,column|
-            conn_h[column] = {}
-          }
-        }
-        @table_exists   = Hash.new { |h,pool|
-          h[pool] = {}
-        }
       end
 
       def accept object
@@ -38,6 +30,17 @@ module Arel
         ].compact.join ' '
       end
 
+      # FIXME: we should probably have a 2-pass visitor for this
+      def build_subselect key, o
+        stmt             = Nodes::SelectStatement.new
+        core             = stmt.cores.first
+        core.froms       = o.relation
+        core.projections = [key]
+        stmt.limit       = o.limit
+        stmt.orders      = o.orders
+        stmt
+      end
+
       def visit_Arel_Nodes_UpdateStatement o
         if o.orders.empty? && o.limit.nil?
           wheres = o.wheres
@@ -48,20 +51,11 @@ module Arel
 (#{caller.first}) Using UpdateManager without setting UpdateManager#key is
 deprecated and support will be removed in ARel 3.0.0.  Please set the primary
 key on UpdateManager using UpdateManager#key=
-eowarn
+            eowarn
             key = o.relation.primary_key
           end
 
-          wheres = o.wheres
-          stmt             = Nodes::SelectStatement.new
-          core             = stmt.cores.first
-          core.froms       = o.relation
-          core.top         = Nodes::Top.new(o.limit.expr) if o.limit
-          core.projections = [key]
-          stmt.limit       = o.limit
-          stmt.orders      = o.orders
-
-          wheres = [Nodes::In.new(key, [stmt])]
+          wheres = [Nodes::In.new(key, [build_subselect(key, o)])]
         end
 
         [
@@ -76,8 +70,8 @@ eowarn
           "INSERT INTO #{visit o.relation}",
 
           ("(#{o.columns.map { |x|
-                quote_column_name x.name
-            }.join ', '})" unless o.columns.empty?),
+          quote_column_name x.name
+        }.join ', '})" unless o.columns.empty?),
 
           (visit o.values if o.values),
         ].compact.join ' '
@@ -89,37 +83,20 @@ eowarn
       end
 
       def table_exists? name
-        return true if table_exists.key? name
-
-        @connection.tables.each do |table|
-          table_exists[table] = true
-        end
-
-        table_exists.key? name
-      end
-
-      def table_exists
-        @table_exists[@pool]
+        @pool.table_exists? name
       end
 
       def column_for attr
-        name    = attr.name.to_sym
+        name    = attr.name.to_s
         table   = attr.relation.name
 
         return nil unless table_exists? table
-
-        # If we don't have this column cached, get a list of columns and
-        # cache them for this table
-        unless column_cache.key? table
-          columns = @connection.columns(table, "#{table}(#{name}) Columns")
-          column_cache[table] = Hash[columns.map { |c| [c.name.to_sym, c] }]
-        end
 
         column_cache[table][name]
       end
 
       def column_cache
-        @column_cache[@pool]
+        @pool.columns_hash
       end
 
       def visit_Arel_Nodes_Values o
@@ -130,6 +107,7 @@ eowarn
 
       def visit_Arel_Nodes_SelectStatement o
         [
+          (visit(o.with) if o.with),
           o.cores.map { |x| visit_Arel_Nodes_SelectCore x }.join,
           ("ORDER BY #{o.orders.map { |x| visit x }.join(', ')}" unless o.orders.empty?),
           (visit(o.limit) if o.limit),
@@ -148,6 +126,30 @@ eowarn
           ("GROUP BY #{o.groups.map { |x| visit x }.join ', ' }" unless o.groups.empty?),
           (visit(o.having) if o.having),
         ].compact.join ' '
+      end
+
+      def visit_Arel_Nodes_With o
+        "WITH #{o.children.map { |x| visit x }.join(', ')}"
+      end
+
+      def visit_Arel_Nodes_WithRecursive o
+        "WITH RECURSIVE #{o.children.map { |x| visit x }.join(', ')}"
+      end
+
+      def visit_Arel_Nodes_Union o
+        "( #{visit o.left} UNION #{visit o.right} )"
+      end
+
+      def visit_Arel_Nodes_UnionAll o
+        "( #{visit o.left} UNION ALL #{visit o.right} )"
+      end
+
+      def visit_Arel_Nodes_Intersect o
+        "( #{visit o.left} INTERSECT #{visit o.right} )"
+      end
+
+      def visit_Arel_Nodes_Except o
+        "( #{visit o.left} EXCEPT #{visit o.right} )"
       end
 
       def visit_Arel_Nodes_Having o
@@ -287,11 +289,11 @@ eowarn
       end
 
       def visit_Arel_Nodes_In o
-      "#{visit o.left} IN (#{visit o.right})"
+        "#{visit o.left} IN (#{visit o.right})"
       end
 
       def visit_Arel_Nodes_NotIn o
-      "#{visit o.left} NOT IN (#{visit o.right})"
+        "#{visit o.left} NOT IN (#{visit o.right})"
       end
 
       def visit_Arel_Nodes_And o
