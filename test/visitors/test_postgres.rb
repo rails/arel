@@ -32,6 +32,20 @@ module Arel
         assert_equal 1, sql.scan(/LIMIT/).length, 'should have one limit'
       end
 
+      describe "DISTINCT ON with ORDER BY" do
+        before do
+          sc = Arel::Nodes::SelectStatement.new
+          sc.cores.first.projections << "DISTINCT ON(table.omg) table.*"
+          sc.orders << "table.abc ASC"
+          sc.orders << "xyz DESC"
+          @sql =  @visitor.accept(sc)
+        end
+
+        it "should rename order columns table prefix to match subquery alias" do
+          assert_match(/ORDER BY id_list.abc, id_list.xyz DESC/, @sql)
+          assert_equal 1, @sql.scan(/ORDER BY/).length, "should have one order by"
+        end
+      end
     end
   end
 end

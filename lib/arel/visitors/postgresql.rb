@@ -42,13 +42,15 @@ module Arel
       end
 
       def aliased_orders orders
-        #orders = o.orders.map { |x| visit x }.join(', ').split(',')
         list = []
         orders.each_with_index do |o,i|
+          # Remove any ASC/DESC modifier and table name if present
+          order_column = o.split.first.split(".").last
+
           list <<
             [
-              "id_list.alias_#{i}",
-              (o.index(/desc/i) && 'DESC')
+             "id_list.#{order_column}",
+             (o.index(/desc/i) && 'DESC')
             ].compact.join(' ')
         end
         list
