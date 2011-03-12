@@ -175,6 +175,16 @@ module Arel
           }
         end
 
+        it 'can handle subselects' do
+          table = Table.new(:users)
+          subquery = table.where(table[:name].eq('Aaron'))
+          query = Table.new('dummy').from(subquery).project("count(*)")
+          puts @visitor.accept(query.ast)
+          @visitor.accept(query.ast).must_be_like %{
+            SELECT count(*) FROM (SELECT FROM "users" WHERE "users"."name" = 'Aaron') AS subquery
+          }
+        end
+
         it 'uses the same column for escaping values' do
         @attr = Table.new(:users)[:name]
           visitor = Class.new(ToSql) do
