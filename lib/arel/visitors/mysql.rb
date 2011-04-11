@@ -29,6 +29,27 @@ module Arel
         ].compact.join ' '
       end
 
+      # Force MySQL to always do a case sensitive search on equality
+      def visit_Arel_Nodes_Equality o
+        right = o.right
+
+        if right.nil?
+          "#{visit o.left} IS NULL"
+        else
+          "#{visit o.left} = BINARY #{visit right}"
+        end
+      end
+
+      # Force MySQL to always do a case sensitive search on inequality
+      def visit_Arel_Nodes_NotEqual o
+        right = o.right
+
+        if right.nil?
+          "#{visit o.left} IS NOT NULL"
+        else
+          "#{visit o.left} != BINARY #{visit right}"
+        end
+      end
     end
   end
 end
