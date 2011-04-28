@@ -37,6 +37,7 @@ module Arel
         core.froms       = o.relation
         core.wheres      = o.wheres
         core.projections = [key]
+        core.wheres      = o.wheres
         stmt.limit       = o.limit
         stmt.orders      = o.orders
         stmt
