@@ -520,7 +520,7 @@ module Arel
       describe '#in_any' do
         it 'should create a Grouping node' do
           relation = Table.new(:users)
-          relation[:id].in_any([1,2]).must_be_kind_of Nodes::Grouping
+          relation[:id].in_any([[1,2], [3,4]]).must_be_kind_of Nodes::Grouping
         end
 
         it 'should generate ORs in sql' do
@@ -536,7 +536,7 @@ module Arel
       describe '#in_all' do
         it 'should create a Grouping node' do
           relation = Table.new(:users)
-          relation[:id].in_all([1,2]).must_be_kind_of Nodes::Grouping
+          relation[:id].in_all([[1,2], [3,4]]).must_be_kind_of Nodes::Grouping
         end
 
         it 'should generate ANDs in sql' do
