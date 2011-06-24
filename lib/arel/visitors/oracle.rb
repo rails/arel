@@ -3,6 +3,14 @@ module Arel
     class Oracle < Arel::Visitors::ToSql
       private
 
+      def visit_Arel_Nodes_Matches o
+        "REGEXP_LIKE(#{visit o.left}, #{visit o.right.gsub('%','')},'i')"
+      end
+
+      def visit_Arel_Nodes_DoesNotMatch o
+        "NOT REGEXP_LIKE(#{visit o.left}, #{visit o.right.gsub('%','')},'i')"
+      end
+
       def visit_Arel_Nodes_SelectStatement o
         o = order_hacks(o)
 
