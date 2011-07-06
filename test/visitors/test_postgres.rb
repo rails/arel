@@ -31,6 +31,14 @@ module Arel
         assert_match(/LIMIT 'omg'/, sql)
         assert_equal 1, sql.scan(/LIMIT/).length, 'should have one limit'
       end
+
+      it 'should alias Ordering nodes when using distinct on' do
+        sm = Arel::SelectManager.new Table.engine, Table.new(:blah)
+        sm.project 'DISTINCT ON (id) id'
+        sm.order(Nodes::Ordering.new(:id, :desc))
+        sql = @visitor.accept(sm.ast)
+        assert_match(/ORDER BY id_list.alias_0 DESC/, sql)
+      end
     end
   end
 end

@@ -42,7 +42,7 @@ module Arel
       end
 
       def aliased_orders orders
-        #orders = o.orders.map { |x| visit x }.join(', ').split(',')
+        orders = orders.map { |x| visit x }.join(', ').split(',')
         list = []
         orders.each_with_index do |o,i|
           list <<
