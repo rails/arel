@@ -55,6 +55,24 @@ module Arel
         }
       end
 
+      describe 'Equality' do
+        it 'empty string should be IS NULL check' do
+          test = Table.new(:users)[:name].eq ''
+          @visitor.accept(test).must_be_like %{
+            "users"."name" IS NULL
+          }
+        end
+      end
+      
+      describe 'InEquality' do
+        it 'empty string should be IS NOT NULL check' do
+          test = Table.new(:users)[:name].not_eq ''
+          @visitor.accept(test).must_be_like %{
+            "users"."name" IS NOT NULL
+          }
+        end
+      end
+
       describe 'Nodes::SelectStatement' do
         describe 'limit' do
           it 'adds a rownum clause' do

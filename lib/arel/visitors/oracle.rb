@@ -54,6 +54,20 @@ module Arel
         super
       end
 
+      def visit_Arel_Nodes_Equality o
+        condition_for o, 'IS', '='
+      end
+
+      def visit_Arel_Nodes_NotEqual o
+        condition_for o, 'IS NOT', '!='
+      end
+
+      def condition_for o, null_condition, value_condition
+        right = o.right
+        blank = right && right.empty? #.blank? in RAILS
+        "#{visit o.left} #{blank ? "#{null_condition} NULL" : "#{value_condition} #{visit right}"}"
+      end
+
       def visit_Arel_Nodes_Limit o
       end
 
