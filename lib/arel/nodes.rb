@@ -10,6 +10,7 @@ require 'arel/nodes/update_statement'
 require 'arel/nodes/terminal'
 require 'arel/nodes/true'
 require 'arel/nodes/false'
+require 'arel/nodes/column_name'
 
 # unary
 require 'arel/nodes/unary'
