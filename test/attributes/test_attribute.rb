@@ -267,6 +267,15 @@ module Arel
             FROM "users"
           }
         end
+        
+        it 'should set the alias to "avg_price"' do
+          relation = Table.new(:products)
+          mgr = relation.project relation[:price].average
+          mgr.to_sql.must_be_like %{
+            SELECT AVG("products"."price") AS avg_price
+            FROM "products"
+          }
+        end
       end
 
       describe '#maximum' do
@@ -284,12 +293,30 @@ module Arel
             FROM "users"
           }
         end
+        
+        it 'should set the alias to "max_price"' do
+          relation = Table.new(:products)
+          mgr = relation.project relation[:price].maximum
+          mgr.to_sql.must_be_like %{
+            SELECT MAX("products"."price") AS max_price
+            FROM "products"
+          }
+        end
       end
 
       describe '#minimum' do
         it 'should create a Min node' do
           relation = Table.new(:users)
           relation[:id].minimum.must_be_kind_of Nodes::Min
+        end
+        
+        it 'should set the alias to "min_price"' do
+          relation = Table.new(:products)
+          mgr = relation.project relation[:price].minimum
+          mgr.to_sql.must_be_like %{
+            SELECT MIN("products"."price") AS min_price
+            FROM "products"
+          }
         end
       end
 
@@ -306,6 +333,15 @@ module Arel
           mgr.to_sql.must_be_like %{
             SELECT SUM("users"."id") AS sum_id
             FROM "users"
+          }
+        end
+        
+        it 'should set the alias to "sum_price"' do
+          relation = Table.new(:products)
+          mgr = relation.project relation[:price].sum
+          mgr.to_sql.must_be_like %{
+            SELECT SUM("products"."price") AS sum_price
+            FROM "products"
           }
         end
       end
