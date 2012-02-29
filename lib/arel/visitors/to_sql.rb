@@ -23,7 +23,8 @@ module Arel
       def visit_Arel_Nodes_DeleteStatement o
         [
           "DELETE FROM #{visit o.relation}",
-          ("WHERE #{o.wheres.map { |x| visit x }.join ' AND '}" unless o.wheres.empty?)
+          ("WHERE #{o.wheres.map { |x| visit x }.join ' AND '}" unless o.wheres.empty?),
+          (visit(o.limit) if o.limit)
         ].compact.join ' '
       end
 

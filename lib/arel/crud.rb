@@ -54,6 +54,7 @@ switch to `compile_insert`
 
     def compile_delete
       dm = DeleteManager.new @engine
+      dm.take @ast.limit.expr if @ast.limit
       dm.wheres = @ctx.wheres
       dm.from @ctx.froms
       dm
