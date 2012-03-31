@@ -133,10 +133,8 @@ module Arel
     end
 
     def project *projections
-      # FIXME: converting these to SQLLiterals is probably not good, but
-      # rails tests require it.
       @ctx.projections.concat projections.map { |x|
-        [Symbol, String].include?(x.class) ? SqlLiteral.new(x.to_s) : x
+        [Symbol, String].include?(x.class) ? Arel::Nodes::ColumnName.new(x.to_s) : x
       }
       self
     end
@@ -154,9 +152,8 @@ module Arel
     end
 
     def order *expr
-      # FIXME: We SHOULD NOT be converting these to SqlLiteral automatically
       @ast.orders.concat expr.map { |x|
-        String === x || Symbol === x ? Nodes::SqlLiteral.new(x.to_s) : x
+        [Symbol, String].include?(x.class) ? Arel::Nodes::ColumnName.new(x.to_s) : x
       }
       self
     end

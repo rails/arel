@@ -148,6 +148,14 @@ key on UpdateManager using UpdateManager#key=
         'DISTINCT'
       end
 
+      def visit_Arel_Nodes_ColumnName o
+        parts = []
+        parts << "#{quote_table_name o.table_name}." if o.table_name
+        parts << quote_column_name(o.name)
+        parts << " #{o.direction}" if o.direction
+        parts.join
+      end
+
       def visit_Arel_Nodes_DistinctOn o
         raise NotImplementedError, 'DISTINCT ON not implemented for this db'
       end
