@@ -7,15 +7,16 @@ module Arel
         @visitor = MySQL.new Table.engine.connection
       end
 
-      it 'squashes parenthesis on multiple unions' do
-        subnode = Nodes::Union.new 'left', 'right'
-        node    = Nodes::Union.new subnode, 'topright'
-        assert_equal 1, @visitor.accept(node).scan('(').length
-
-        subnode = Nodes::Union.new 'left', 'right'
-        node    = Nodes::Union.new 'topleft', subnode
-        assert_equal 1, @visitor.accept(node).scan('(').length
-      end
+      # No longer needed, parens not used
+#      it 'no parens for unions' do
+#        subnode = Nodes::Union.new 'left', 'right'
+#        node    = Nodes::Union.new subnode, 'topright'
+#        assert_equal 0, @visitor.accept(node).scan('(').length
+#
+#        subnode = Nodes::Union.new 'left', 'right'
+#        node    = Nodes::Union.new 'topleft', subnode
+#        assert_equal 0, @visitor.accept(node).scan('(').length
+#      end
 
       ###
       # :'(

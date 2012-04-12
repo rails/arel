@@ -119,6 +119,7 @@ key on UpdateManager using UpdateManager#key=
         [
           (visit(o.with) if o.with),
           o.cores.map { |x| visit_Arel_Nodes_SelectCore x }.join,
+          (o.unions.map { |x| visit_Arel_Nodes_Union x }.join ' ' unless o.unions.empty?),
           ("ORDER BY #{o.orders.map { |x| visit x }.join(', ')}" unless o.orders.empty?),
           (visit(o.limit) if o.limit),
           (visit(o.offset) if o.offset),
@@ -161,11 +162,12 @@ key on UpdateManager using UpdateManager#key=
       end
 
       def visit_Arel_Nodes_Union o
-        "( #{visit o.left} UNION #{visit o.right} )"
-      end
-
-      def visit_Arel_Nodes_UnionAll o
-        "( #{visit o.left} UNION ALL #{visit o.right} )"
+        # FIXME remove is_a?
+        if o.is_a? Nodes::Union
+          "UNION #{visit o.expr}"
+        else
+          "UNION ALL #{visit o.expr}"
+        end
       end
 
       def visit_Arel_Nodes_Intersect o
