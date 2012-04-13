@@ -54,7 +54,6 @@ lib/arel/nodes/values.rb
 lib/arel/nodes/with.rb
 lib/arel/order_predications.rb
 lib/arel/predications.rb
-lib/arel/relation.rb
 lib/arel/select_manager.rb
 lib/arel/sql/engine.rb
 lib/arel/sql_literal.rb
