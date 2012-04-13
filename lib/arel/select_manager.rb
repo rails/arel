@@ -185,7 +185,8 @@ module Arel
         node_class = Nodes::Union
       end
 
-      node_class.new self.ast, other.ast
+      @ast.unions << node_class.new(other.ast)
+      self
     end
 
     def intersect other

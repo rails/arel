@@ -296,17 +296,24 @@ module Arel
         @m2.project Arel.star
         @m2.where(table[:age].gt(99))
 
-
+        @m3 = Arel::SelectManager.new Table.engine, table
+        @m3.project Arel.star
+        @m3.where(table[:id].gt(0))
       end
 
       it 'should union two managers' do
-        # FIXME should this union "managers" or "statements" ?
-        # FIXME this probably shouldn't return a node
-        node = @m1.union @m2
+        statement = @m1.union @m2
 
-        # maybe FIXME: decide when wrapper parens are needed
-        node.to_sql.must_be_like %{
-          ( SELECT * FROM "users"  WHERE "users"."age" < 18 UNION SELECT * FROM "users"  WHERE "users"."age" > 99 )
+        statement.to_sql.must_be_like %{
+          SELECT * FROM "users"  WHERE "users"."age" < 18 UNION SELECT * FROM "users"  WHERE "users"."age" > 99
+        }
+      end
+
+      it 'should be chainable' do
+        statement = @m1.union(@m2).union(@m3)
+
+        statement.to_sql.must_be_like %{
+          SELECT * FROM "users"  WHERE "users"."age" < 18 UNION SELECT * FROM "users"  WHERE "users"."age" > 99 UNION SELECT * FROM "users"  WHERE "users"."id" > 0
         }
       end
 
@@ -314,7 +321,7 @@ module Arel
         node = @m1.union :all, @m2
 
         node.to_sql.must_be_like %{
-          ( SELECT * FROM "users"  WHERE "users"."age" < 18 UNION ALL SELECT * FROM "users"  WHERE "users"."age" > 99 )
+          SELECT * FROM "users"  WHERE "users"."age" < 18 UNION ALL SELECT * FROM "users"  WHERE "users"."age" > 99
         }
       end
 
@@ -392,7 +399,9 @@ module Arel
 
         union = recursive_term.union(non_recursive_term)
 
-        as_statement = Arel::Nodes::As.new replies, union
+        # TODO I think 'as' should do the parens here. A union doesn't
+        # need surrounding parens
+        as_statement = Arel::Nodes::As.new replies, union.ast
 
         manager = Arel::SelectManager.new Table.engine
         manager.with(:recursive, as_statement).from(replies).project(Arel.star)

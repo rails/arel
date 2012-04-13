@@ -11,17 +11,19 @@ module Arel
 
     %w{
       Bin
+      DistinctOn
       Group
       Grouping
       Having
       Limit
+      Lock
       Not
       Offset
       On
       Ordering
       Top
-      Lock
-      DistinctOn
+      Union
+      UnionAll
     }.each do |name|
       const_set(name, Class.new(Unary))
     end
