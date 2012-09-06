@@ -344,6 +344,17 @@ module Arel
           end
         end
       end
+
+      begin
+        require 'sequel'
+        it "should visit_Sequel_SQL_AliasedExpression if Sequel is present" do
+          [:to_sym, :to_s].each do |fn|
+            sql = @visitor.accept Sequel::SQL::AliasedExpression.new(*%w(foo bar).map(&fn))
+            sql.must_be_like "foo AS bar"
+          end
+        end
+      rescue LoadError
+      end
     end
   end
 end
