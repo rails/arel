@@ -14,6 +14,10 @@ module Arel
       @ctx = @ast.cores.last
     end
 
+    def statement
+      @ast
+    end
+
     def limit
       @ast.limit && @ast.limit.expr
     end

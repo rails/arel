@@ -218,6 +218,13 @@ module Arel
           ss], @collector.calls
       end
 
+      def test_select_manager
+        sm = Table.new(:foo).project(:bar)
+        def sm.statement; :a; end
+        @visitor.accept sm
+        assert_equal [:a, sm], @collector.calls
+      end
+
       def test_insert_statement
         stmt = Nodes::InsertStatement.new
         stmt.relation = :a

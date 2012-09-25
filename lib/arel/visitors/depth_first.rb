@@ -150,6 +150,10 @@ module Arel
         visit o.offset
       end
 
+      def visit_Arel_SelectManager o
+        visit o.statement
+      end
+
       def visit_Arel_Nodes_UpdateStatement o
         visit o.relation
         visit o.values
