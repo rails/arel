@@ -27,7 +27,9 @@ module Arel
     def to_sql
       collector = Arel::Collectors::SQLString.new
       collector = visitor.accept @ast, collector
-      collector.value
+      sql = collector.value
+      sql << " /* #{@ast.comments.join(' ')} */" if ast.comments
+      sql
     end
 
     def initialize_copy other

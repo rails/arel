@@ -234,6 +234,12 @@ module Arel
       @ctx.source
     end
 
+    def comment comment
+      @ast.comments ||= []
+      @ast.comments << comment
+      self
+    end
+
     class Row < Struct.new(:data) # :nodoc:
       def id
         data['id']
