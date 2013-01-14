@@ -24,6 +24,15 @@ describe Arel::Nodes::Count do
       }
     end
   end
+  
+  describe 'division' do
+    it 'should divide by the numerator' do
+      table = Arel::Table.new :users
+      (table[:id].count/2).to_sql.must_be_like %{
+        (COUNT("users"."id") / 2)
+      }
+    end
+  end
 
   describe 'equality' do
     it 'is equal with equal ivars' do

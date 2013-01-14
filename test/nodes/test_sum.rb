@@ -9,6 +9,17 @@ describe Arel::Nodes::Sum do
       }
     end
   end
+  
+  describe "division" do
+    it 'should divide by the denominator' do
+      table = Arel::Table.new :users
+      s = table[:id].sum
+      s.alias = nil
+      (s/17).to_sql.must_be_like %{
+        (SUM("users"."id") / 17)
+      }
+    end
+  end
 
   describe 'equality' do
     it 'is equal with equal ivars' do

@@ -576,7 +576,7 @@ key on UpdateManager using UpdateManager#key=
       alias :visit_TrueClass                     :quoted
 
       def visit_Arel_Nodes_InfixOperation o
-        "#{visit o.left} #{o.operator} #{visit o.right}"
+        "(#{visit o.left} #{o.operator} #{visit o.right})"
       end
 
       alias :visit_Arel_Nodes_Addition       :visit_Arel_Nodes_InfixOperation
