@@ -31,6 +31,7 @@ module Arel
       Assignment
       Between
       DoesNotMatch
+      Escape
       GreaterThan
       GreaterThanOrEqual
       Join

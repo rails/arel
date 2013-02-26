@@ -92,6 +92,7 @@ module Arel
         Arel::Nodes::Between,
         Arel::Nodes::DoesNotMatch,
         Arel::Nodes::Equality,
+        Arel::Nodes::Escape,
         Arel::Nodes::GreaterThan,
         Arel::Nodes::GreaterThanOrEqual,
         Arel::Nodes::In,
