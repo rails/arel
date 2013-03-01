@@ -439,6 +439,10 @@ key on UpdateManager using UpdateManager#key=
         "#{visit o.left} NOT LIKE #{visit o.right}"
       end
 
+      def visit_Arel_Nodes_Escape o
+        "#{visit o.left} ESCAPE #{visit o.right}"
+      end
+
       def visit_Arel_Nodes_JoinSource o
         [
           (visit(o.left) if o.left),
