@@ -584,6 +584,10 @@ key on UpdateManager using UpdateManager#key=
       alias :visit_Arel_Nodes_Multiplication :visit_Arel_Nodes_InfixOperation
       alias :visit_Arel_Nodes_Division       :visit_Arel_Nodes_InfixOperation
 
+      def visit_Sequel_SQL_AliasedExpression o
+        "#{o.expression} AS #{o.aliaz}"
+      end
+
       def visit_Array o
         o.map { |x| visit x }.join(', ')
       end
