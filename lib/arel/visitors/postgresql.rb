@@ -1,6 +1,9 @@
 module Arel
   module Visitors
     class PostgreSQL < Arel::Visitors::ToSql
+      alias :visit_Bignum :quoted
+      alias :visit_Fixnum :quoted
+
       private
 
       def visit_Arel_Nodes_Matches o
