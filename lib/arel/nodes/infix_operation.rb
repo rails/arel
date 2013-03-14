@@ -40,5 +40,11 @@ module Arel
       end
     end
 
+    class Concatenation < InfixOperation
+      def initialize left, right
+        super(:"||", left, right)
+      end
+    end
+
   end
 end
