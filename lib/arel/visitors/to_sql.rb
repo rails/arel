@@ -166,7 +166,7 @@ key on UpdateManager using UpdateManager#key= '#{key.inspect}'
           str << SPACE
         end
 
-        o.cores.each { |x| str << visit_Arel_Nodes_SelectCore(x, a) }
+        o.cores.each { |x| str << visit(x, a) }
 
         unless o.orders.empty?
           str << SPACE
@@ -256,19 +256,27 @@ key on UpdateManager using UpdateManager#key= '#{key.inspect}'
       end
 
       def visit_Arel_Nodes_Union o, a
-        "( #{visit o.left, a} UNION #{visit o.right, a} )"
+        "( #{ o.children.map { |x| visit x, a }.join ' ) UNION ( ' } )"
       end
 
       def visit_Arel_Nodes_UnionAll o, a
-        "( #{visit o.left, a} UNION ALL #{visit o.right, a} )"
+        "( #{ o.children.map { |x| visit x, a }.join ' ) UNION ALL ( ' } )"
       end
 
       def visit_Arel_Nodes_Intersect o, a
-        "( #{visit o.left, a} INTERSECT #{visit o.right, a} )"
+        "( #{ o.children.map { |x| visit x, a }.join ' ) INTERSECT ( ' } )"
+      end
+
+      def visit_Arel_Nodes_IntersectAll o, a
+        "( #{ o.children.map { |x| visit x, a }.join ' ) INTERSECT ALL ( ' } )"
       end
 
       def visit_Arel_Nodes_Except o, a
-        "( #{visit o.left, a} EXCEPT #{visit o.right, a} )"
+        "( #{ o.children.map { |x| visit x, a }.join ' ) EXCEPT ( ' } )"
+      end
+
+      def visit_Arel_Nodes_ExceptAll o, a
+        "( #{ o.children.map { |x| visit x, a }.join ' ) EXCEPT ALL ( ' } )"
       end
 
       def visit_Arel_Nodes_NamedWindow o, a
@@ -336,11 +344,6 @@ key on UpdateManager using UpdateManager#key= '#{key.inspect}'
         "LIMIT #{visit o.expr, a}"
       end
 
-      # FIXME: this does nothing on most databases, but does on MSSQL
-      def visit_Arel_Nodes_Top o, a
-        ""
-      end
-
       def visit_Arel_Nodes_Lock o, a
         visit o.expr, a
       end
@@ -350,7 +353,7 @@ key on UpdateManager using UpdateManager#key= '#{key.inspect}'
       end
 
       def visit_Arel_SelectManager o, a
-        "(#{o.to_sql.rstrip})"
+        "( #{o.to_sql.rstrip} )"
       end
 
       def visit_Arel_Nodes_Ascending o, a
@@ -503,7 +506,7 @@ key on UpdateManager using UpdateManager#key= '#{key.inspect}'
       end
 
       def visit_Arel_Nodes_Or o, a
-        "#{visit o.left, a} OR #{visit o.right, a}"
+        o.children.map { |x| visit x, a }.join ' OR '
       end
 
       def visit_Arel_Nodes_Assignment o, a

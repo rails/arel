@@ -8,12 +8,12 @@ module Arel
       end
 
       it 'squashes parenthesis on multiple unions' do
-        subnode = Nodes::Union.new 'left', 'right'
-        node    = Nodes::Union.new subnode, 'topright'
+        subnode = Nodes::Union.new ['left', 'right']
+        node    = Nodes::Union.new [subnode, 'topright']
         assert_equal 1, @visitor.accept(node).scan('(').length
 
-        subnode = Nodes::Union.new 'left', 'right'
-        node    = Nodes::Union.new 'topleft', subnode
+        subnode = Nodes::Union.new ['left', 'right']
+        node    = Nodes::Union.new ['topleft', subnode]
         assert_equal 1, @visitor.accept(node).scan('(').length
       end
 

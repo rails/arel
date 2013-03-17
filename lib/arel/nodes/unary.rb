@@ -29,7 +29,6 @@ module Arel
       Offset
       On
       Ordering
-      Top
       Lock
       DistinctOn
     }.each do |name|

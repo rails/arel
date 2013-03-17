@@ -30,7 +30,7 @@ require 'arel/nodes/infix_operation'
 require 'arel/nodes/over'
 
 # nary
-require 'arel/nodes/and'
+require 'arel/nodes/nary'
 
 # function
 # FIXME: Function + Alias can be rewritten as a Function and Alias node.

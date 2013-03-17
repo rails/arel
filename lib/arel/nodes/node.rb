@@ -27,7 +27,7 @@ module Arel
       # Factory method to create a Nodes::Grouping node that has an Nodes::Or
       # node as a child.
       def or right
-        Nodes::Grouping.new Nodes::Or.new(self, right)
+        Nodes::Grouping.new Nodes::Or.new [self, right]
       end
 
       ###
