@@ -35,7 +35,6 @@ module Arel
         Arel::Nodes::Offset,
         Arel::Nodes::Ordering,
         Arel::Nodes::UnqualifiedColumn,
-        Arel::Nodes::Top,
         Arel::Nodes::Limit,
       ].each do |klass|
         define_method("test_#{klass.name.gsub('::', '_')}") do
@@ -68,6 +67,17 @@ module Arel
         define_method("test_#{klass.name.gsub('::', '_')}") do
           binary = klass.new(:a, :b)
           @visitor.accept binary, Collectors::PlainString.new
+        end
+      end
+
+      # N-ary
+      [
+        Arel::Nodes::Or,
+        Arel::Nodes::And,
+      ].each do |klass|
+        define_method("test_#{klass.name.gsub('::', '_')}") do
+          nary = klass.new([:a, :b, :c])
+          @visitor.accept nary, Collectors::PlainString.new
         end
       end
     end

@@ -251,25 +251,42 @@ module Arel
         @m2.project Arel.star
         @m2.where(table[:age].gt(99))
 
-
+        @m3 = Arel::SelectManager.new table
+        @m3.project Arel.star
+        @m3.where(table[:id].gt(0))
       end
 
       it 'should union two managers' do
-        # FIXME should this union "managers" or "statements" ?
-        # FIXME this probably shouldn't return a node
-        node = @m1.union @m2
+        manager = @m1.union @m2
 
         # maybe FIXME: decide when wrapper parens are needed
-        node.to_sql.must_be_like %{
-          ( SELECT * FROM "users"  WHERE "users"."age" < 18 UNION SELECT * FROM "users"  WHERE "users"."age" > 99 )
+        manager.to_sql.must_be_like %{
+          ( SELECT * FROM "users"  WHERE "users"."age" < 18 ) UNION ( SELECT * FROM "users"  WHERE "users"."age" > 99 )
         }
       end
 
       it 'should union all' do
-        node = @m1.union :all, @m2
+        manager = @m1.union :all, @m2
 
-        node.to_sql.must_be_like %{
-          ( SELECT * FROM "users"  WHERE "users"."age" < 18 UNION ALL SELECT * FROM "users"  WHERE "users"."age" > 99 )
+        # maybe FIXME: decide when wrapper parens are needed
+        manager.to_sql.must_be_like %{
+          ( SELECT * FROM "users"  WHERE "users"."age" < 18 ) UNION ALL ( SELECT * FROM "users"  WHERE "users"."age" > 99 )
+        }
+      end
+
+      it 'should be chainable' do
+        manager = @m1.union(@m2).union(@m3)
+
+        # maybe FIXME: decide when wrapper parens are needed
+        manager.to_sql.must_be_like %{
+          ( ( SELECT * FROM "users"  WHERE "users"."age" < 18 ) UNION ( SELECT * FROM "users"  WHERE "users"."age" > 99 ) ) UNION ( SELECT * FROM "users"  WHERE "users"."id" > 0 )
+        }
+
+        manager = @m1.union [@m2, @m3]
+
+        # maybe FIXME: decide when wrapper parens are needed
+        manager.to_sql.must_be_like %{
+          ( SELECT * FROM "users"  WHERE "users"."age" < 18 ) UNION ( SELECT * FROM "users"  WHERE "users"."age" > 99 ) UNION ( SELECT * FROM "users"  WHERE "users"."id" > 0 )
         }
       end
 
@@ -286,17 +303,42 @@ module Arel
         @m2.project Arel.star
         @m2.where(table[:age].lt(99))
 
-
+        @m3 = Arel::SelectManager.new table
+        @m3.project Arel.star
+        @m3.where(table[:id].gt(0))
       end
 
       it 'should interect two managers' do
-        # FIXME should this intersect "managers" or "statements" ?
-        # FIXME this probably shouldn't return a node
-        node = @m1.intersect @m2
+        manager = @m1.intersect @m2
 
         # maybe FIXME: decide when wrapper parens are needed
-        node.to_sql.must_be_like %{
-          ( SELECT * FROM "users"  WHERE "users"."age" > 18 INTERSECT SELECT * FROM "users"  WHERE "users"."age" < 99 )
+        manager.to_sql.must_be_like %{
+          ( SELECT * FROM "users"  WHERE "users"."age" > 18 ) INTERSECT ( SELECT * FROM "users"  WHERE "users"."age" < 99 )
+        }
+      end
+
+      it 'should interect all' do
+        manager = @m1.intersect :all, @m2
+
+        # maybe FIXME: decide when wrapper parens are needed
+        manager.to_sql.must_be_like %{
+          ( SELECT * FROM "users"  WHERE "users"."age" > 18 ) INTERSECT ALL ( SELECT * FROM "users"  WHERE "users"."age" < 99 )
+        }
+      end
+
+      it 'should be chainable' do
+        manager = @m1.intersect(@m2).intersect(@m3)
+
+        # maybe FIXME: decide when wrapper parens are needed
+        manager.to_sql.must_be_like %{
+          ( ( SELECT * FROM "users"  WHERE "users"."age" > 18 ) INTERSECT ( SELECT * FROM "users"  WHERE "users"."age" < 99 ) ) INTERSECT ( SELECT * FROM "users"  WHERE "users"."id" > 0 )
+        }
+
+        manager = @m1.intersect [@m2, @m3]
+
+        # maybe FIXME: decide when wrapper parens are needed
+        manager.to_sql.must_be_like %{
+          ( SELECT * FROM "users"  WHERE "users"."age" > 18 ) INTERSECT ( SELECT * FROM "users"  WHERE "users"."age" < 99 ) INTERSECT ( SELECT * FROM "users"  WHERE "users"."id" > 0 )
         }
       end
 
@@ -312,16 +354,43 @@ module Arel
         @m2 = Arel::SelectManager.new table
         @m2.project Arel.star
         @m2.where(table[:age].between(40..99))
+
+        @m3 = Arel::SelectManager.new table
+        @m3.project Arel.star
+        @m3.where(table[:id].gt(0))
       end
 
       it 'should except two managers' do
-        # FIXME should this except "managers" or "statements" ?
-        # FIXME this probably shouldn't return a node
-        node = @m1.except @m2
+        manager = @m1.except @m2
 
         # maybe FIXME: decide when wrapper parens are needed
-        node.to_sql.must_be_like %{
-          ( SELECT * FROM "users"  WHERE "users"."age" BETWEEN 18 AND 60 EXCEPT SELECT * FROM "users"  WHERE "users"."age" BETWEEN 40 AND 99 )
+        manager.to_sql.must_be_like %{
+          ( SELECT * FROM "users"  WHERE "users"."age" BETWEEN 18 AND 60 ) EXCEPT ( SELECT * FROM "users"  WHERE "users"."age" BETWEEN 40 AND 99 )
+        }
+      end
+
+      it 'should except all' do
+        manager = @m1.except :all, @m2
+
+        # maybe FIXME: decide when wrapper parens are needed
+        manager.to_sql.must_be_like %{
+          ( SELECT * FROM "users"  WHERE "users"."age" BETWEEN 18 AND 60 ) EXCEPT ALL ( SELECT * FROM "users"  WHERE "users"."age" BETWEEN 40 AND 99 )
+        }
+      end
+
+      it 'should be chainable' do
+        manager = @m1.except(@m2).except(@m3)
+
+        # maybe FIXME: decide when wrapper parens are needed
+        manager.to_sql.must_be_like %{
+          ( ( SELECT * FROM "users"  WHERE "users"."age" BETWEEN 18 AND 60 ) EXCEPT ( SELECT * FROM "users"  WHERE "users"."age" BETWEEN 40 AND 99 ) ) EXCEPT ( SELECT * FROM "users"  WHERE "users"."id" > 0 )
+        }
+
+        manager = @m1.except [@m2, @m3]
+
+        # maybe FIXME: decide when wrapper parens are needed
+        manager.to_sql.must_be_like %{
+          ( SELECT * FROM "users"  WHERE "users"."age" BETWEEN 18 AND 60 ) EXCEPT ( SELECT * FROM "users"  WHERE "users"."age" BETWEEN 40 AND 99 ) EXCEPT ( SELECT * FROM "users"  WHERE "users"."id" > 0 )
         }
       end
 
@@ -339,7 +408,7 @@ module Arel
                           .where(comments[:author_id].in(users_top.project(users_top[:id])))
 
         select_manager.to_sql.must_be_like %{
-          WITH "users_top" AS (SELECT "users"."id" FROM "users" WHERE "users"."karma" > 100) SELECT * FROM "comments" WHERE "comments"."author_id" IN (SELECT "users_top"."id" FROM "users_top")
+          WITH "users_top" AS ( SELECT "users"."id" FROM "users" WHERE "users"."karma" > 100 ) SELECT * FROM "comments" WHERE "comments"."author_id" IN (SELECT "users_top"."id" FROM "users_top")
         }
       end
 
@@ -367,9 +436,9 @@ module Arel
         sql = manager.to_sql
         sql.must_be_like %{
           WITH RECURSIVE "replies" AS (
-              SELECT "comments"."id", "comments"."parent_id" FROM "comments" WHERE "comments"."id" = 42
+            ( SELECT "comments"."id", "comments"."parent_id" FROM "comments" WHERE "comments"."id" = 42 )
             UNION
-              SELECT "comments"."id", "comments"."parent_id" FROM "comments" INNER JOIN "replies" ON "comments"."parent_id" = "replies"."id"
+            ( SELECT "comments"."id", "comments"."parent_id" FROM "comments" INNER JOIN "replies" ON "comments"."parent_id" = "replies"."id" )
           )
           SELECT * FROM "replies"
         }

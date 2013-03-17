@@ -26,7 +26,6 @@ module Arel
       alias :visit_Arel_Nodes_Ordering          :unary
       alias :visit_Arel_Nodes_Ascending         :unary
       alias :visit_Arel_Nodes_Descending        :unary
-      alias :visit_Arel_Nodes_Top               :unary
       alias :visit_Arel_Nodes_UnqualifiedColumn :unary
 
       def function o
@@ -57,6 +56,7 @@ module Arel
         o.children.each { |child| visit child}
       end
       alias :visit_Arel_Nodes_And :nary
+      alias :visit_Arel_Nodes_Or  :nary
 
       def binary o
         visit o.left
@@ -81,7 +81,6 @@ module Arel
       alias :visit_Arel_Nodes_NotEqual           :binary
       alias :visit_Arel_Nodes_NotIn              :binary
       alias :visit_Arel_Nodes_NotRegexp          :binary
-      alias :visit_Arel_Nodes_Or                 :binary
       alias :visit_Arel_Nodes_OuterJoin          :binary
       alias :visit_Arel_Nodes_Regexp             :binary
       alias :visit_Arel_Nodes_RightOuterJoin     :binary

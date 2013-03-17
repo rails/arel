@@ -280,7 +280,7 @@ module Arel
 
       it "should visit_Arel_SelectManager, which is a subquery" do
         mgr = Table.new(:foo).project(:bar)
-        compile(mgr).must_be_like '(SELECT bar FROM "foo")'
+        compile(mgr).must_be_like '( SELECT bar FROM "foo" )'
       end
 
       it "should visit_Arel_Nodes_And" do
@@ -291,7 +291,7 @@ module Arel
       end
 
       it "should visit_Arel_Nodes_Or" do
-        node = Nodes::Or.new @attr.eq(10), @attr.eq(11)
+        node = Nodes::Or.new [@attr.eq(10), @attr.eq(11)]
         compile(node).must_be_like %{
           "users"."id" = 10 OR "users"."id" = 11
         }
