@@ -26,6 +26,10 @@ module Arel
       Nodes::And.new clauses
     end
 
+    def create_or left, right
+      Nodes::Or.new left, right
+    end
+
     def create_on expr
       Nodes::On.new expr
     end
