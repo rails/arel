@@ -16,10 +16,17 @@ module Arel
       end
 
       def visit object, attribute = nil
+        name = dispatch[object.class]
+        return send(name, object, attribute) if respond_to?(name, true)
+
         object.class.ancestors.each do |klass|
           name = dispatch[klass]
-          return send(name, object, attribute) if respond_to?(name, true)
+          if respond_to?(name, true)
+            dispatch[object.class] = name
+            return send(name, object, attribute)
+          end
         end
+
         raise(TypeError, "Cannot visit #{object.class}")
       end
     end
