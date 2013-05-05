@@ -16,8 +16,9 @@ module Arel
       end
 
       def visit object, attribute = nil
-        name = dispatch[object.class]
-        return send(name, object, attribute) if respond_to?(name, true)
+        send dispatch[object.class], object, attribute
+      rescue NoMethodError => e
+        raise e if respond_to?(dispatch[object.class], true)
 
         object.class.ancestors.each do |klass|
           name = dispatch[klass]
