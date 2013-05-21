@@ -7,6 +7,7 @@ module Arel
     def initialize engine
       @engine = engine
       @ctx    = nil
+      @bindings = []
     end
 
     def to_dot
@@ -32,6 +33,14 @@ module Arel
       end
       @ctx.wheres << expr
       self
+    end
+
+    def add_binding bind
+      @bindings << bind
+    end
+
+    def bindings
+      @bindings
     end
   end
 end
