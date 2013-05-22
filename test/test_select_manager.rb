@@ -1155,5 +1155,25 @@ module Arel
         manager.ast.cores.last.set_quantifier.must_equal nil
       end
     end
+
+    describe 'bindings' do
+      it 'adds 1 value to bindings' do
+        manager = Arel::SelectManager.new Table.engine
+
+        manager.add_binding "hello"
+
+        manager.bindings.must_equal ["hello"]
+      end
+
+      it 'adds multiple values to bindings' do
+        manager = Arel::SelectManager.new Table.engine
+
+        manager.add_binding "hello"
+        manager.add_binding "cool"
+        manager.add_binding "wowzers"
+
+        manager.bindings.must_equal ["hello","cool","wowzers"]
+      end
+    end
   end
 end
