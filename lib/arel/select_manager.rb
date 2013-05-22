@@ -46,16 +46,7 @@ module Arel
     def as other
       create_table_alias grouping(@ast), Nodes::SqlLiteral.new(other)
     end
-    def where_clauses
-=begin
-      if $VERBOSE
-        warn "(#{caller.first}) where_clauses is deprecated and will be removed in arel 4.0.0 with no replacement"
-      end
-=end
-      to_sql = Visitors::ToSql.new @engine.connection
-      @ctx.wheres.map { |c| to_sql.accept c }
-    end
-    
+
     def lock locking = Arel.sql('FOR UPDATE')
       case locking
       when true
@@ -169,12 +160,6 @@ module Arel
     def orders
       @ast.orders
     end
-    def wheres
-=begin
-      warn "#{caller[0]}: SelectManager#wheres is deprecated and will be removed in Arel 4.0.0 with no replacement"
-=end
-      Compatibility::Wheres.new @engine.connection, @ctx.wheres
-    end
 
     def where_sql
       return if @ctx.wheres.empty?
@@ -247,15 +232,7 @@ module Arel
     def source
       @ctx.source
     end
-    def joins manager
-=begin
-      if $VERBOSE
-        warn "joins is deprecated and will be removed in 4.0.0"
-        warn "please remove your call to joins from #{caller.first}"
-      end
-=end
-      manager.join_sql
-    end
+    
     class Row < Struct.new(:data) # :nodoc:
       def id
         data['id']
@@ -266,40 +243,6 @@ module Arel
         return data[name] if data.key?(name)
         super
       end
-    end
-    
-    def to_a # :nodoc:
-=begin
-      warn "to_a is deprecated. Please remove it from #{caller[0]}"
-      # FIXME: I think `select` should be made public...
-=end
-      @engine.connection.send(:select, to_sql, 'AREL').map { |x| Row.new(x) }
-    end
-    
-    # FIXME: this method should go away
-    def insert values
-=begin
-      if $VERBOSE
-        warn <<-eowarn
-insert (#{caller.first}) is deprecated and will be removed in Arel 4.0.0. Please
-switch to `compile_insert`
-        eowarn
-      end
-=end
-      im = compile_insert(values)
-      table = @ctx.froms
-
-      primary_key      = table.primary_key
-      primary_key_name = primary_key.name if primary_key
-
-      # FIXME: in AR tests values sometimes were Array and not Hash therefore is_a?(Hash) check is added
-      primary_key_value = primary_key && values.is_a?(Hash) && values[primary_key]
-      im.into table
-      # Oracle adapter needs primary key name to generate RETURNING ... INTO ... clause
-      # for tables which assign primary key value using trigger.
-      # RETURNING ... INTO ... clause will be added only if primary_key_value is nil
-      # therefore it is necessary to pass primary key value as well
-      @engine.connection.insert im.to_sql, 'AREL', primary_key_name, primary_key_value
     end
     
     private
