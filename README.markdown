@@ -117,6 +117,34 @@ The `parent_id` column is a foreign key from the `comments` table to itself. Now
 
 This will return the first comment's reply's body.
 
+### Some examples using Arel to fetch Rails models
+
+Constructing and running a query
+
+    uat = User.arel_table
+    query = uat[:id].lteq(100)
+
+    # Calling to_sql is useful for checking your logic
+    query.to_sql
+    # => ""users"."id" <= 20"
+
+    User.where(query.to_sql).count
+    # => 12
+
+Chaining together conditions with `and`
+
+    new_query = uat[:id].gteq(500).and uat[:id].lteq(550)
+
+    #  Calling to_sql is optional when passing an arel query to `where`
+    User.where(new_query).count
+    # => 50
+
+Queries can be built, saved and composed
+
+    composite_query = new_query.or query
+    User.where(composite_query).count
+    # => 62
+
 ### License
-    
+
 Arel is released under the [MIT License](http://opensource.org/licenses/MIT).
