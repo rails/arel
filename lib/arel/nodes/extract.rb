@@ -11,11 +11,11 @@ module Arel
       def initialize expr, field, aliaz = nil
         super(expr)
         @field = field
-        @alias = aliaz && SqlLiteral.new(aliaz)
+        @alias = aliaz
       end
 
       def as aliaz
-        self.alias = SqlLiteral.new(aliaz)
+        self.alias = aliaz
         self
       end
 

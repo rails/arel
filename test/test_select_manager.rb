@@ -104,12 +104,6 @@ module Arel
           assert_equal 'foo', as.right
         end
 
-        it 'converts right to SqlLiteral if a string' do
-          manager = Arel::SelectManager.new Table.engine
-          as = manager.as('foo')
-          assert_kind_of Arel::Nodes::SqlLiteral, as.right
-        end
-
         it 'can make a subselect' do
           manager = Arel::SelectManager.new Table.engine
           manager.project Arel.star
@@ -281,7 +275,7 @@ module Arel
         manager.project SqlLiteral.new '*'
         m2 = Arel::SelectManager.new(manager.engine)
         m2.project manager.exists.as('foo')
-        m2.to_sql.must_be_like %{ SELECT EXISTS (#{manager.to_sql}) AS foo }
+        m2.to_sql.must_be_like %{ SELECT EXISTS (#{manager.to_sql}) AS 'foo' }
       end
     end
 
@@ -667,7 +661,7 @@ module Arel
 
         joins = users.join(counts).on(counts[:user_id].eq(10))
         joins.to_sql.must_be_like  %{
-          SELECT FROM "users" INNER JOIN (SELECT "comments"."user_id" AS user_id, COUNT("comments"."user_id") AS count FROM "comments" GROUP BY "comments"."user_id") counts ON counts."user_id" = 10
+          SELECT FROM "users" INNER JOIN (SELECT "comments"."user_id" AS 'user_id', COUNT("comments"."user_id") AS 'count' FROM "comments" GROUP BY "comments"."user_id") "counts" ON "counts"."user_id" = 10
         }
       end
 

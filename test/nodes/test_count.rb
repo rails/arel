@@ -11,7 +11,7 @@ describe Arel::Nodes::Count do
     it 'should alias the count' do
       table = Arel::Table.new :users
       table[:id].count.as('foo').to_sql.must_be_like %{
-        COUNT("users"."id") AS foo
+        COUNT("users"."id") AS 'foo'
       }
     end
   end
