@@ -29,15 +29,15 @@ module Arel
       when Arel::SelectManager
         Arel::Nodes::In.new(self, other.ast)
       when Range
-        if other.begin == -Float::INFINITY
-          if other.end == Float::INFINITY
+        if negative_infinite?(other.begin)
+          if positive_infinite?(other.end)
             Nodes::NotIn.new self, []
           elsif other.exclude_end?
             Nodes::LessThan.new(self, Nodes.build_quoted(other.end, self))
           else
             Nodes::LessThanOrEqual.new(self, Nodes.build_quoted(other.end, self))
           end
-        elsif other.end == Float::INFINITY
+        elsif positive_infinite?(other.end)
           Nodes::GreaterThanOrEqual.new(self, Nodes.build_quoted(other.begin, self))
         elsif other.exclude_end?
           left  = Nodes::GreaterThanOrEqual.new(self, Nodes.build_quoted(other.begin, self))
@@ -66,15 +66,15 @@ module Arel
       when Arel::SelectManager
         Arel::Nodes::NotIn.new(self, other.ast)
       when Range
-        if other.begin == -Float::INFINITY # The range begins with negative infinity
-          if other.end == Float::INFINITY
+        if negative_infinite?(other.begin) # The range begins with negative infinity
+          if positive_infinite?(other.end)
             Nodes::In.new self, [] # The range is infinite, so return an empty range
           elsif other.exclude_end?
             Nodes::GreaterThanOrEqual.new(self, Nodes.build_quoted(other.end, self))
           else
             Nodes::GreaterThan.new(self, Nodes.build_quoted(other.end, self))
           end
-        elsif other.end == Float::INFINITY
+        elsif positive_infinite?(other.end)
           Nodes::LessThan.new(self, Nodes.build_quoted(other.begin, self))
         else
           left  = Nodes::LessThan.new(self, Nodes.build_quoted(other.begin, self))
@@ -184,6 +184,22 @@ module Arel
     def grouping_all method_id, others, *extras
       nodes = others.map {|expr| send(method_id, expr, *extras)}
       Nodes::Grouping.new Nodes::And.new(nodes)
+    end
+
+    def positive_infinite? value
+      if value.respond_to? :infinite?
+        value.infinite? == 1
+      else
+        value == Float::INFINITY
+      end
+    end
+
+    def negative_infinite? value
+      if value.respond_to? :infinite?
+        value.infinite? == -1
+      else
+        value == -Float::INFINITY
+      end
     end
   end
 end
