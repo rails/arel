@@ -575,6 +575,7 @@ key on UpdateManager using UpdateManager#key=
       alias :visit_Hash                          :quoted
       alias :visit_NilClass                      :quoted
       alias :visit_String                        :quoted
+      alias :visit_Fixnum                        :quoted
       alias :visit_Symbol                        :quoted
       alias :visit_Time                          :quoted
       alias :visit_TrueClass                     :quoted
