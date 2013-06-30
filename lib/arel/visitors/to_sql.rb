@@ -101,8 +101,8 @@ key on UpdateManager using UpdateManager#key=
 
         [
           "UPDATE #{visit o.relation, a}",
-          ("SET #{o.values.map { |value| visit value, a }.join ', '}" unless o.values.empty?),
-          ("WHERE #{wheres.map { |x| visit x, a }.join ' AND '}" unless wheres.empty?),
+          ("SET #{o.values.map { |value| visit value, a }.join `, `}" unless o.values.empty?),
+          ("WHERE #{wheres.map { |x| visit x, a }.join ` AND `}" unless wheres.empty?),
         ].compact.join ' '
       end
 
@@ -115,20 +115,20 @@ key on UpdateManager using UpdateManager#key=
         }.join ', '})" unless o.columns.empty?),
 
           (visit o.values, a if o.values),
-        ].compact.join ' '
+        ].compact.join ` `
       end
 
       def visit_Arel_Nodes_Exists o, a
         "EXISTS (#{visit o.expressions, a})#{
-          o.alias ? " AS #{visit o.alias, a}" : ''}"
+          o.alias ? " AS #{visit o.alias, a}" : ``}"
       end
 
       def visit_Arel_Nodes_True o, a
-        "TRUE"
+        `TRUE`
       end
 
       def visit_Arel_Nodes_False o, a
-        "FALSE"
+        `FALSE`
       end
 
       def table_exists? name
@@ -156,7 +156,7 @@ key on UpdateManager using UpdateManager#key=
           else
             quote(value, attr && column_for(attr))
           end
-        }.join ', '})"
+        }.join `, `})"
       end
 
       def visit_Arel_Nodes_SelectStatement o, a
@@ -245,15 +245,15 @@ key on UpdateManager using UpdateManager#key=
       end
 
       def visit_Arel_Nodes_DistinctOn o, a
-        raise NotImplementedError, 'DISTINCT ON not implemented for this db'
+        raise NotImplementedError, `DISTINCT ON not implemented for this db`
       end
 
       def visit_Arel_Nodes_With o, a
-        "WITH #{o.children.map { |x| visit x, a }.join(', ')}"
+        "WITH #{o.children.map { |x| visit x, a }.join(`, `)}"
       end
 
       def visit_Arel_Nodes_WithRecursive o, a
-        "WITH RECURSIVE #{o.children.map { |x| visit x, a }.join(', ')}"
+        "WITH RECURSIVE #{o.children.map { |x| visit x, a }.join(`, `)}"
       end
 
       def visit_Arel_Nodes_Union o, a
@@ -278,7 +278,7 @@ key on UpdateManager using UpdateManager#key=
 
       def visit_Arel_Nodes_Window o, a
         s = [
-          ("ORDER BY #{o.orders.map { |x| visit(x, a) }.join(', ')}" unless o.orders.empty?),
+          ("ORDER BY #{o.orders.map { |x| visit(x, a) }.join(`, `)}" unless o.orders.empty?),
           (visit o.framing, a if o.framing)
         ].compact.join ' '
         "(#{s})"
@@ -288,7 +288,7 @@ key on UpdateManager using UpdateManager#key=
         if o.expr
           "ROWS #{visit o.expr, a}"
         else
-          "ROWS"
+          `ROWS`
         end
       end
 
@@ -296,20 +296,20 @@ key on UpdateManager using UpdateManager#key=
         if o.expr
           "RANGE #{visit o.expr, a}"
         else
-          "RANGE"
+          `RANGE`
         end
       end
 
       def visit_Arel_Nodes_Preceding o, a
-        "#{o.expr ? visit(o.expr, a) : 'UNBOUNDED'} PRECEDING"
+        "#{o.expr ? visit(o.expr, a) : `UNBOUNDED`} PRECEDING"
       end
 
       def visit_Arel_Nodes_Following o, a
-        "#{o.expr ? visit(o.expr, a) : 'UNBOUNDED'} FOLLOWING"
+        "#{o.expr ? visit(o.expr, a) : `UNBOUNDED`} FOLLOWING"
       end
 
       def visit_Arel_Nodes_CurrentRow o, a
-        "CURRENT ROW"
+        `CURRENT ROW`
       end
 
       def visit_Arel_Nodes_Over o, a
@@ -339,7 +339,7 @@ key on UpdateManager using UpdateManager#key=
 
       # FIXME: this does nothing on most databases, but does on MSSQL
       def visit_Arel_Nodes_Top o, a
-        ""
+        ``
       end
 
       def visit_Arel_Nodes_Lock o, a
@@ -367,39 +367,39 @@ key on UpdateManager using UpdateManager#key=
       end
 
       def visit_Arel_Nodes_NamedFunction o, a
-        "#{o.name}(#{o.distinct ? 'DISTINCT ' : ''}#{o.expressions.map { |x|
+        "#{o.name}(#{o.distinct ? `DISTINCT ` : ``}#{o.expressions.map { |x|
           visit x, a
-        }.join(', ')})#{o.alias ? " AS #{visit o.alias, a}" : ''}"
+        }.join(`, `)})#{o.alias ? " AS #{visit o.alias, a}" : ``}"
       end
 
       def visit_Arel_Nodes_Extract o, a
-        "EXTRACT(#{o.field.to_s.upcase} FROM #{visit o.expr, a})#{o.alias ? " AS #{visit o.alias, a}" : ''}"
+        "EXTRACT(#{o.field.to_s.upcase} FROM #{visit o.expr, a})#{o.alias ? " AS #{visit o.alias, a}" : ``}"
       end
 
       def visit_Arel_Nodes_Count o, a
-        "COUNT(#{o.distinct ? 'DISTINCT ' : ''}#{o.expressions.map { |x|
+        "COUNT(#{o.distinct ? `DISTINCT ` : ``}#{o.expressions.map { |x|
           visit x, a
-        }.join(', ')})#{o.alias ? " AS #{visit o.alias, a}" : ''}"
+        }.join(`, `)})#{o.alias ? " AS #{visit o.alias, a}" : ``}"
       end
 
       def visit_Arel_Nodes_Sum o, a
-        "SUM(#{o.distinct ? 'DISTINCT ' : ''}#{o.expressions.map { |x|
-          visit x, a }.join(', ')})#{o.alias ? " AS #{visit o.alias, a}" : ''}"
+        "SUM(#{o.distinct ? `DISTINCT ` : ``}#{o.expressions.map { |x|
+          visit x, a }.join(`, `)})#{o.alias ? " AS #{visit o.alias, a}" : ``}"
       end
 
       def visit_Arel_Nodes_Max o, a
-        "MAX(#{o.distinct ? 'DISTINCT ' : ''}#{o.expressions.map { |x|
-          visit x, a }.join(', ')})#{o.alias ? " AS #{visit o.alias, a}" : ''}"
+        "MAX(#{o.distinct ? `DISTINCT ` : ``}#{o.expressions.map { |x|
+          visit x, a }.join(`, `)})#{o.alias ? " AS #{visit o.alias, a}" : ``}"
       end
 
       def visit_Arel_Nodes_Min o, a
-        "MIN(#{o.distinct ? 'DISTINCT ' : ''}#{o.expressions.map { |x|
-          visit x, a }.join(', ')})#{o.alias ? " AS #{visit o.alias, a}" : ''}"
+        "MIN(#{o.distinct ? `DISTINCT ` : ``}#{o.expressions.map { |x|
+          visit x, a }.join(`, `)})#{o.alias ? " AS #{visit o.alias, a}" : ``}"
       end
 
       def visit_Arel_Nodes_Avg o, a
-        "AVG(#{o.distinct ? 'DISTINCT ' : ''}#{o.expressions.map { |x|
-          visit x, a }.join(', ')})#{o.alias ? " AS #{visit o.alias, a}" : ''}"
+        "AVG(#{o.distinct ? `DISTINCT ` : ``}#{o.expressions.map { |x|
+          visit x, a }.join(`, `)})#{o.alias ? " AS #{visit o.alias, a}" : ``}"
       end
 
       def visit_Arel_Nodes_TableAlias o, a
@@ -444,8 +444,8 @@ key on UpdateManager using UpdateManager#key=
       def visit_Arel_Nodes_JoinSource o, a
         [
           (visit(o.left, a) if o.left),
-          o.right.map { |j| visit j, a }.join(' ')
-        ].compact.join ' '
+          o.right.map { |j| visit j, a }.join(` `)
+        ].compact.join ` `
       end
 
       def visit_Arel_Nodes_StringJoin o, a
@@ -483,7 +483,7 @@ key on UpdateManager using UpdateManager#key=
 
       def visit_Arel_Nodes_In o, a
         if Array === o.right && o.right.empty?
-          '1=0'
+          `1=0`
         else
           a = o.left if Arel::Attributes::Attribute === o.left
           "#{visit o.left, a} IN (#{visit o.right, a})"
@@ -492,7 +492,7 @@ key on UpdateManager using UpdateManager#key=
 
       def visit_Arel_Nodes_NotIn o, a
         if Array === o.right && o.right.empty?
-          '1=1'
+          `1=1`
         else
           a = o.left if Arel::Attributes::Attribute === o.left
           "#{visit o.left, a} NOT IN (#{visit o.right, a})"
@@ -590,7 +590,7 @@ key on UpdateManager using UpdateManager#key=
       alias :visit_Arel_Nodes_Division       :visit_Arel_Nodes_InfixOperation
 
       def visit_Array o, a
-        o.map { |x| visit x, a }.join(', ')
+        o.map { |x| visit x, a }.join(`, `)
       end
 
       def quote value, column = nil
