@@ -37,18 +37,18 @@ module Arel
       end
 
       def visit_Arel_Nodes_SelectCore o, a
-        o.froms ||= Arel.sql('DUAL')
+        o.froms ||= Arel.sql(DUAL)
         super
       end
 
       def visit_Arel_Nodes_UpdateStatement o, a
         [
           "UPDATE #{visit o.relation, a}",
-          ("SET #{o.values.map { |value| visit value, a }.join ', '}" unless o.values.empty?),
-          ("WHERE #{o.wheres.map { |x| visit x, a }.join ' AND '}" unless o.wheres.empty?),
-          ("ORDER BY #{o.orders.map { |x| visit x, a }.join(', ')}" unless o.orders.empty?),
+          ("SET #{o.values.map { |value| visit value, a }.join COMMA_}" unless o.values.empty?),
+          ("WHERE #{o.wheres.map { |x| visit x, a }.join AND}" unless o.wheres.empty?),
+          ("ORDER BY #{o.orders.map { |x| visit x, a }.join(COMMA_)}" unless o.orders.empty?),
           (visit(o.limit, a) if o.limit),
-        ].compact.join ' '
+        ].compact.join SPACE
       end
 
     end

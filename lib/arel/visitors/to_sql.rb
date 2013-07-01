@@ -45,18 +45,24 @@ module Arel
 
       # :stopdoc:
       AND         = ' AND '
-      COMMA       = ', '
+      COMMA       = ','
+      COMMA_      = ', '
       CURRENT_ROW = 'CURRENT ROW'
       DISTINCT    = 'DISTINCT'
       DISTINCT_   = 'DISTINCT '
+      DESC        = ' DESC'
+      DUAL        = 'DUAL'
       EMPTY       = ''
       FALSE       = 'FALSE'
       GROUP_BY    = ' GROUP BY '
+      LPAREN      = '('
       ONE_EQ_ONE  = "1=1"
       ONE_EQ_ZERO = "1=0"
       ORDER_BY    = ' ORDER BY '
       RANGE       = 'RANGE'
+      ROWNUM      = 'ROWNUM'
       ROWS        = 'ROWS'
+      RPAREN      = ')'
       SELECT      = 'SELECT'
       SPACE       = ' '
       TRUE        = 'TRUE'
@@ -112,7 +118,7 @@ key on UpdateManager using UpdateManager#key=
 
         [
           "UPDATE #{visit o.relation, a}",
-          ("SET #{o.values.map { |value| visit value, a }.join COMMA}" unless o.values.empty?),
+          ("SET #{o.values.map { |value| visit value, a }.join COMMA_}" unless o.values.empty?),
           ("WHERE #{wheres.map { |x| visit x, a }.join AND}" unless wheres.empty?),
         ].compact.join SPACE
       end
@@ -123,7 +129,7 @@ key on UpdateManager using UpdateManager#key=
 
           ("(#{o.columns.map { |x|
           quote_column_name x.name
-        }.join COMMA})" unless o.columns.empty?),
+        }.join COMMA_})" unless o.columns.empty?),
 
           (visit o.values, a if o.values),
         ].compact.join SPACE
@@ -167,7 +173,7 @@ key on UpdateManager using UpdateManager#key=
           else
             quote(value, attr && column_for(attr))
           end
-        }.join COMMA})"
+        }.join COMMA_})"
       end
 
       def visit_Arel_Nodes_SelectStatement o, a
@@ -186,7 +192,7 @@ key on UpdateManager using UpdateManager#key=
           len = o.orders.length - 1
           o.orders.each_with_index { |x, i|
             str << visit(x, a)
-            str << COMMA unless len == i
+            str << COMMA_ unless len == i
           }
         end
 
@@ -209,7 +215,7 @@ key on UpdateManager using UpdateManager#key=
           len = o.projections.length - 1
           o.projections.each_with_index do |x, i|
             str << visit(x, a)
-            str << COMMA unless len == i
+            str << COMMA_ unless len == i
           end
         end
 
@@ -229,7 +235,7 @@ key on UpdateManager using UpdateManager#key=
           len = o.groups.length - 1
           o.groups.each_with_index do |x, i|
             str << visit(x, a)
-            str << COMMA unless len == i
+            str << COMMA_ unless len == i
           end
         end
 
@@ -240,7 +246,7 @@ key on UpdateManager using UpdateManager#key=
           len = o.windows.length - 1
           o.windows.each_with_index do |x, i|
             str << visit(x, a)
-            str << COMMA unless len == i
+            str << COMMA_ unless len == i
           end
         end
 
@@ -260,11 +266,11 @@ key on UpdateManager using UpdateManager#key=
       end
 
       def visit_Arel_Nodes_With o, a
-        "WITH #{o.children.map { |x| visit x, a }.join(COMMA)}"
+        "WITH #{o.children.map { |x| visit x, a }.join(COMMA_)}"
       end
 
       def visit_Arel_Nodes_WithRecursive o, a
-        "WITH RECURSIVE #{o.children.map { |x| visit x, a }.join(COMMA)}"
+        "WITH RECURSIVE #{o.children.map { |x| visit x, a }.join(COMMA_)}"
       end
 
       def visit_Arel_Nodes_Union o, a
@@ -289,7 +295,7 @@ key on UpdateManager using UpdateManager#key=
 
       def visit_Arel_Nodes_Window o, a
         s = [
-          ("ORDER BY #{o.orders.map { |x| visit(x, a) }.join(COMMA)}" unless o.orders.empty?),
+          ("ORDER BY #{o.orders.map { |x| visit(x, a) }.join(COMMA_)}" unless o.orders.empty?),
           (visit o.framing, a if o.framing)
         ].compact.join SPACE
         "(#{s})"
@@ -380,7 +386,7 @@ key on UpdateManager using UpdateManager#key=
       def visit_Arel_Nodes_NamedFunction o, a
         "#{o.name}(#{o.distinct ? DISTINCT_ : EMPTY}#{o.expressions.map { |x|
           visit x, a
-        }.join(COMMA)})#{o.alias ? " AS #{visit o.alias, a}" : EMPTY}"
+        }.join(COMMA_)})#{o.alias ? " AS #{visit o.alias, a}" : EMPTY}"
       end
 
       def visit_Arel_Nodes_Extract o, a
@@ -390,27 +396,27 @@ key on UpdateManager using UpdateManager#key=
       def visit_Arel_Nodes_Count o, a
         "COUNT(#{o.distinct ? DISTINCT_ : EMPTY}#{o.expressions.map { |x|
           visit x, a
-        }.join(COMMA)})#{o.alias ? " AS #{visit o.alias, a}" : EMPTY}"
+        }.join(COMMA_)})#{o.alias ? " AS #{visit o.alias, a}" : EMPTY}"
       end
 
       def visit_Arel_Nodes_Sum o, a
         "SUM(#{o.distinct ? DISTINCT_ : EMPTY}#{o.expressions.map { |x|
-          visit x, a }.join(COMMA)})#{o.alias ? " AS #{visit o.alias, a}" : EMPTY}"
+          visit x, a }.join(COMMA_)})#{o.alias ? " AS #{visit o.alias, a}" : EMPTY}"
       end
 
       def visit_Arel_Nodes_Max o, a
         "MAX(#{o.distinct ? DISTINCT_ : EMPTY}#{o.expressions.map { |x|
-          visit x, a }.join(COMMA)})#{o.alias ? " AS #{visit o.alias, a}" : EMPTY}"
+          visit x, a }.join(COMMA_)})#{o.alias ? " AS #{visit o.alias, a}" : EMPTY}"
       end
 
       def visit_Arel_Nodes_Min o, a
         "MIN(#{o.distinct ? DISTINCT_ : EMPTY}#{o.expressions.map { |x|
-          visit x, a }.join(COMMA)})#{o.alias ? " AS #{visit o.alias, a}" : EMPTY}"
+          visit x, a }.join(COMMA_)})#{o.alias ? " AS #{visit o.alias, a}" : EMPTY}"
       end
 
       def visit_Arel_Nodes_Avg o, a
         "AVG(#{o.distinct ? DISTINCT_ : EMPTY}#{o.expressions.map { |x|
-          visit x, a }.join(COMMA)})#{o.alias ? " AS #{visit o.alias, a}" : EMPTY}"
+          visit x, a }.join(COMMA_)})#{o.alias ? " AS #{visit o.alias, a}" : EMPTY}"
       end
 
       def visit_Arel_Nodes_TableAlias o, a
@@ -601,7 +607,7 @@ key on UpdateManager using UpdateManager#key=
       alias :visit_Arel_Nodes_Division       :visit_Arel_Nodes_InfixOperation
 
       def visit_Array o, a
-        o.map { |x| visit x, a }.join(COMMA)
+        o.map { |x| visit x, a }.join(COMMA_)
       end
 
       def quote value, column = nil

@@ -10,7 +10,7 @@ module Arel
         # then can use simple ROWNUM in WHERE clause
         if o.limit && o.orders.empty? && !o.offset && o.cores.first.projections.first !~ /^DISTINCT /
           o.cores.last.wheres.push Nodes::LessThanOrEqual.new(
-            Nodes::SqlLiteral.new('ROWNUM'), o.limit.expr
+            Nodes::SqlLiteral.new(ROWNUM), o.limit.expr
           )
           return super
         end
@@ -92,7 +92,7 @@ module Arel
         # orders   = o.orders.map { |x| visit x, a }.join(', ').split(',')
         orders   = o.orders.map do |x|
           string = visit x, a
-          if string.include?(',')
+          if string.include?(COMMA)
             split_order_string(string)
           else
             string
@@ -101,7 +101,7 @@ module Arel
         o.orders = []
         orders.each_with_index do |order, i|
           o.orders <<
-            Nodes::SqlLiteral.new("alias_#{i}__#{' DESC' if /\bdesc$/i === order}")
+            Nodes::SqlLiteral.new("alias_#{i}__#{DESC if /\bdesc$/i === order}")
         end
         o
       end
@@ -111,14 +111,13 @@ module Arel
       def split_order_string(string)
         array = []
         i = 0
-        string.split(',').each do |part|
+        string.split(COMMA).each do |part|
           if array[i]
-            array[i] << ',' << part
+            array[i] << COMMA << part
           else
-            # to ensure that array[i] will be String and not Arel::Nodes::SqlLiteral
-            array[i] = '' << part
+            array[i] = part.to_s
           end
-          i += 1 if array[i].count('(') == array[i].count(')')
+          i += 1 if array[i].count(LPAREN) == array[i].count(RPAREN)
         end
         array
       end
