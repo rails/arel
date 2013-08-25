@@ -3,7 +3,7 @@ module Arel
     class Descending < Ordering
 
       def reverse
-        Ascending.new(expr)
+        Ascending.new(expr, nulls: reverse_nulls)
       end
 
       def direction

@@ -449,12 +449,12 @@ module Arel
         collector << "(#{o.to_sql.rstrip})"
       end
 
-      def visit_Arel_Nodes_Ascending o, collector
-        visit(o.expr, collector) << " ASC"
+      def visit_Arel_Nodes_Ascending(o, collector)
+        visit_ordering_expr(o, collector, 'ASC')
       end
 
-      def visit_Arel_Nodes_Descending o, collector
-        visit(o.expr, collector) << " DESC"
+      def visit_Arel_Nodes_Descending(o, collector)
+        visit_ordering_expr(o, collector, 'DESC')
       end
 
       def visit_Arel_Nodes_Group o, collector
@@ -878,6 +878,20 @@ You can also silence this warning globally by setting `$arel_silence_type_castin
 If you are passing user input to a predicate, you must either give an appropriate type caster object to the `Arel::Table`, or manually cast the value before passing it to Arel.
           eowarn
         end
+      end
+
+      def visit_ordering_expr(o, collector, direction)
+        if o.nulls
+          case_node = Nodes::Case.new
+            .when(o.expr.eq(nil)).then(0).else(1)
+
+          order_node_klass = o.nulls == :first ? Nodes::Ascending : Nodes::Descending
+
+          visit(order_node_klass.new(case_node), collector) << ', '
+          visit(o.expr, collector)
+        else
+          visit(o.expr, collector)
+        end << ' ' << direction
       end
     end
   end

@@ -8,7 +8,6 @@ module Arel
         collector = visit o.expr, collector
         collector << " ROWS ONLY"
       end
-
     end
   end
 end

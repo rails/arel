@@ -461,6 +461,17 @@ module Arel
           SELECT * FROM "users" ORDER BY "users"."id" DESC
         }
       end
+
+      it 'supports nulls last with asc' do
+        table   = Table.new :users
+        manager = Arel::SelectManager.new
+        manager.project Nodes::SqlLiteral.new '*'
+        manager.from table
+        manager.order table[:id].asc(nulls: :last)
+        manager.to_sql.must_be_like %{
+          SELECT * FROM "users" ORDER BY CASE WHEN "users"."id" IS NULL THEN 0 ELSE 1 END DESC, "users"."id" ASC
+        }
+      end
     end
 
     describe 'on' do

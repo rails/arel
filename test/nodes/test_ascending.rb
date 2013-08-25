@@ -39,6 +39,20 @@ module Arel
         array = [Ascending.new('zomg'), Ascending.new('zomg!')]
         assert_equal 2, array.uniq.size
       end
+
+      def test_accept_nulls_first_last_option
+        ascending = Ascending.new('zomg')
+        assert_nil ascending.nulls
+
+        ascending = Ascending.new('zomg', nulls: :first)
+        assert_equal :first, ascending.nulls
+      end
+
+      def test_reverse_with_nulls
+        ascending = Ascending.new('zomg', nulls: :first)
+        descending = ascending.reverse
+        assert_equal :last, descending.nulls
+      end
     end
   end
 end

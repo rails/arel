@@ -24,6 +24,20 @@ module Arel
         }
       end
 
+      it 'should support NULLS FIRST/LAST' do
+        compile(Nodes::Ascending.new(Nodes::SqlLiteral.new('omg'))).must_be_like %{
+           omg ASC
+        }
+
+        compile(Nodes::Ascending.new(Nodes::SqlLiteral.new('omg'), nulls: :first)).must_be_like %{
+          omg ASC NULLS FIRST
+        }
+
+        compile(Nodes::Descending.new(Nodes::SqlLiteral.new('omg'), nulls: :last)).must_be_like %{
+          omg DESC NULLS LAST
+        }
+      end
+
       it 'is idempotent with crazy query' do
         # *sigh*
         select = "DISTINCT foo.id, FIRST_VALUE(projects.name) OVER (foo) AS alias_0__"

@@ -43,6 +43,12 @@ module Arel
       def visit_Arel_Nodes_BindParam o, collector
         collector.add_bind(o) { |i| "$#{i}" }
       end
+
+      def visit_ordering_expr(o, collector, direction)
+        collector = visit(o.expr, collector) << ' ' << direction
+        collector << " NULLS #{o.nulls.to_s.upcase}" if o.nulls
+        collector
+      end
     end
   end
 end
