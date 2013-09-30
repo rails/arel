@@ -1,3 +1,5 @@
+require 'thread_safe'
+
 module Arel
   module Visitors
     class Visitor
@@ -7,10 +9,10 @@ module Arel
 
       private
 
-      DISPATCH = Hash.new do |hash, visitor_class|
+      DISPATCH = ThreadSafe::Cache.new do |hash, visitor_class|
         hash[visitor_class] =
-          Hash.new do |hash, node_class|
-            hash[node_class] = "visit_#{(node_class.name || '').gsub('::', '_')}"
+          ThreadSafe::Cache.new(:initial_capacity => 2) do |inner_hash, node_class|
+            inner_hash[node_class] = "visit_#{(node_class.name || '').gsub('::', '_')}"
           end
       end
 

@@ -17,4 +17,6 @@ Hoe.spec 'arel' do
   self.licenses         = ['MIT']
   self.readme_file      = 'README.markdown'
   self.extra_rdoc_files = FileList['README.markdown']
+
+  dependency('thread_safe', '~> 0.1')
 end

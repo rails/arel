@@ -1,5 +1,6 @@
 require 'bigdecimal'
 require 'date'
+require 'thread_safe'
 
 module Arel
   module Visitors
@@ -56,8 +57,8 @@ module Arel
       def initialize connection
         @connection     = connection
         @schema_cache   = connection.schema_cache
-        @quoted_tables  = {}
-        @quoted_columns = {}
+        @quoted_tables  = ThreadSafe::Cache.new
+        @quoted_columns = ThreadSafe::Cache.new
       end
 
       private
