@@ -13,6 +13,10 @@ module Arel
       Visitors::Dot.new.accept @ast
     end
 
+    def would_include? object
+      Visitors::WhereRuby.new(object).accept @ast
+    end
+
     def visitor
       engine.connection.visitor
     end

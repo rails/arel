@@ -154,6 +154,38 @@ comments_with_replies = \
 
 This will return the first comment's reply's body.
 
+#### Checking object inclusion
+
+Sometimes, you want to find out whether an object would match the
+conditions represented by the WHERE clause of a query, but without
+actually executing the SQL.
+
+The `would_include?(object)` method answers this question by executing the conditions
+of the query against the passed-in `object`.
+
+```ruby
+jane.age = 21
+users.where(users[:age].lt(25))).would_include?(jane)
+# => true
+
+jane.age = 45
+users.where(users[:age].lt(25))).would_include?(jane)
+# => false
+```
+
+This can help you avoid re-executing a query you've already run, or
+even to skip running the query altogether in cases where you only need
+to know whether a given object would be returned by that query.
+
+Since this doesn't actually execute the query, this works even on
+unsaved records.  It assumes the presence of an accessor method with
+the same name as any attribute in the conditions.  For example, the
+code above will check that `jane.age < 25`.
+
+Limitation: Things that don't matter will be ignored, like SELECT
+clauses, but joins are unsupported, so calling `would_include?` on a
+relation that used joins would raise an error.
+
 ### License
 
 Arel is released under the [MIT License](http://opensource.org/licenses/MIT).
