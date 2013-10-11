@@ -124,6 +124,10 @@ module Arel
         @visitor.accept DateTime.now
       end
 
+      it "should visit_IPAddr" do
+        @visitor.accept IPAddr.new '127.0.0.1'
+      end
+
       it "should visit_Float" do
         @visitor.accept 2.14
       end

@@ -592,7 +592,7 @@ key on UpdateManager using UpdateManager#key=
         o.map { |x| visit x, a }.join(', ')
       end
 
-      def visit_IPAddr ip
+      def visit_IPAddr o, ip
         quote(ip.to_s)
       end
 
