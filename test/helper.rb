@@ -2,6 +2,7 @@ require 'rubygems'
 require 'minitest/autorun'
 require 'fileutils'
 require 'arel'
+require 'ipaddr'
 
 require 'support/fake_record'
 Arel::Table.engine = Arel::Sql::Engine.new(FakeRecord::Base.new)
