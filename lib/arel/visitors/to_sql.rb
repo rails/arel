@@ -592,6 +592,10 @@ key on UpdateManager using UpdateManager#key=
         o.map { |x| visit x, a }.join(', ')
       end
 
+      def visit_IPAddr ip
+        quote(ip.to_s)
+      end
+
       def quote value, column = nil
         return value if Arel::Nodes::SqlLiteral === value
         @connection.quote value, column
