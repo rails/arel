@@ -115,6 +115,16 @@ key on UpdateManager using UpdateManager#key=
         }.join ', '})"
       end
 
+      def visit_Arel_Nodes_ExtraValues o
+        "(#{o.values.map { |value|
+          if Nodes::SqlLiteral === value
+            visit value
+          else
+            quote(value)
+          end
+        }.join ', '})"
+      end
+
       def visit_Arel_Nodes_SelectStatement o
         [
           (visit(o.with) if o.with),

@@ -139,6 +139,22 @@ module Arel
           INSERT INTO "users" ("id", "name") VALUES (1, 'aaron')
         }
       end
+
+      it "adds more values to single insert" do
+        table   = Table.new :users
+        manager = Arel::InsertManager.new Table.engine
+        manager.into table
+
+        manager.values = [
+          Nodes::Values.new([1, 'aaron']),
+          Nodes::ExtraValues.new([2, 'joe'])
+        ]
+        manager.columns << table[:id]
+        manager.columns << table[:name]
+        manager.to_sql.must_be_like %{
+          INSERT INTO "users" ("id", "name") VALUES (1, 'aaron'), (2, 'joe')
+        }
+      end
     end
   end
 end
