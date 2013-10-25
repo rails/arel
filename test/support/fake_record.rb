@@ -1,5 +1,5 @@
 module FakeRecord
-  class Column < Struct.new(:name, :type)
+  class Column < Struct.new(:name, :type, :array)
   end
 
   class Connection
@@ -7,7 +7,7 @@ module FakeRecord
     attr_accessor :visitor
 
     def initialize(visitor = nil)
-      @tables = %w{ users photos developers products}
+      @tables = %w{ users photos developers products pg_arrays}
       @columns = {
         'users' => [
           Column.new('id', :integer),
@@ -18,11 +18,16 @@ module FakeRecord
         'products' => [
           Column.new('id', :integer),
           Column.new('price', :decimal)
+        ],
+        'pg_arrays' => [
+          Column.new('names', :string, true),
+          Column.new('numbers', :integer, true)
         ]
       }
       @columns_hash = {
         'users' => Hash[@columns['users'].map { |x| [x.name, x] }],
-        'products' => Hash[@columns['products'].map { |x| [x.name, x] }]
+        'products' => Hash[@columns['products'].map { |x| [x.name, x] }],
+        'pg_arrays' => Hash[@columns['pg_arrays'].map { |x| [x.name, x] }]
       }
       @primary_keys = {
         'users' => 'id',
@@ -60,6 +65,10 @@ module FakeRecord
     end
 
     def quote thing, column = nil
+      if column && column.array && Array === thing
+        return "'{#{thing.map { |v| quote(v, column) }.join(', ')}}'"
+      end
+
       if column && column.type == :integer
         return 'NULL' if thing.nil?
         return thing.to_i
