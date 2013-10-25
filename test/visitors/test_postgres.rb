@@ -43,6 +43,12 @@ module Arel
         core.set_quantifier = Arel::Nodes::Distinct.new
         assert_equal 'SELECT DISTINCT', @visitor.accept(core)
       end
+
+      it 'should covert arrays to array literals when used with an array column' do
+        attr = Table.new(:pg_arrays)[:numbers]
+        test = attr.eq [1,2]
+        @visitor.accept(test).must_match /\{1, 2\}/
+      end
     end
   end
 end
