@@ -43,6 +43,12 @@ module Arel
         core.set_quantifier = Arel::Nodes::Distinct.new
         assert_equal 'SELECT DISTINCT', @visitor.accept(core)
       end
+
+      it 'should support IPAddr with subnet' do
+        table = Table.new(:visitors)
+        node = table[:ip_address].eq(IPAddr.new('127.0.0.1'))
+        assert_match /'127.0.0.1\/32/, @visitor.accept(node)
+      end
     end
   end
 end
