@@ -14,6 +14,7 @@ module Arel
       um.set values
       um.take @ast.limit.expr if @ast.limit
       um.order(*@ast.orders)
+      um.lock(@ast.lock.expr) if @ast.lock
       um.wheres = @ctx.wheres
       um
     end
@@ -56,6 +57,7 @@ switch to `compile_insert`
       dm = DeleteManager.new @engine
       dm.wheres = @ctx.wheres
       dm.from @ctx.froms
+      dm.lock @ast.lock.expr if @ast.lock
       dm
     end
 

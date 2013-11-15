@@ -1,5 +1,9 @@
+require 'arel/lock_manager'
+
 module Arel
   class UpdateManager < Arel::TreeManager
+    include Arel::LockManager
+
     def initialize engine
       super
       @ast = Nodes::UpdateStatement.new

@@ -1,6 +1,9 @@
+require 'arel/lock_manager'
+
 module Arel
   class SelectManager < Arel::TreeManager
     include Arel::Crud
+    include Arel::LockManager
 
     def initialize engine, table = nil
       super(engine)
@@ -53,23 +56,6 @@ module Arel
       end
       to_sql = Visitors::ToSql.new @engine.connection
       @ctx.wheres.map { |c| to_sql.accept c }
-    end
-
-    def lock locking = Arel.sql('FOR UPDATE')
-      case locking
-      when true
-        locking = Arel.sql('FOR UPDATE')
-      when Arel::Nodes::SqlLiteral
-      when String
-        locking = Arel.sql locking
-      end
-
-      @ast.lock = Nodes::Lock.new(locking)
-      self
-    end
-
-    def locked
-      @ast.lock
     end
 
     def on *exprs
