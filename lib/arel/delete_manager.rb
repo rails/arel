@@ -1,5 +1,9 @@
+require 'arel/lock_manager'
+
 module Arel
   class DeleteManager < Arel::TreeManager
+    include Arel::LockManager
+
     def initialize engine
       super
       @ast = Nodes::DeleteStatement.new

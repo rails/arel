@@ -6,6 +6,8 @@ module Arel
       alias :wheres :right
       alias :wheres= :right=
 
+      attr_accessor :lock
+
       def initialize relation = nil, wheres = []
         super
       end

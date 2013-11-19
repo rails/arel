@@ -2,7 +2,7 @@ module Arel
   module Nodes
     class UpdateStatement < Arel::Nodes::Node
       attr_accessor :relation, :wheres, :values, :orders, :limit
-      attr_accessor :key
+      attr_accessor :key, :lock
 
       def initialize
         @relation = nil
