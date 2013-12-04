@@ -136,7 +136,7 @@ key on UpdateManager using UpdateManager#key=
           ("WHERE #{o.wheres.map { |x| visit x }.join ' AND ' }" unless o.wheres.empty?),
           ("GROUP BY #{o.groups.map { |x| visit x }.join ', ' }" unless o.groups.empty?),
           (visit(o.having) if o.having),
-          ("WINDOW #{o.windows.map { |x| visit x }.join ', ' }" unless o.windows.empty?)
+          ("WINDOW #{o.windows.map { |x| visit x }.join ', ' }" unless Array(o.windows).empty?)
         ].compact.join ' '
       end
 
