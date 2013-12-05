@@ -38,6 +38,7 @@ require 'arel/nodes/function'
 require 'arel/nodes/count'
 require 'arel/nodes/extract'
 require 'arel/nodes/values'
+require 'arel/nodes/extra_values'
 require 'arel/nodes/named_function'
 
 # windows
