@@ -50,6 +50,31 @@ module Arel
         super
       end
 
+      def visit_Arel_Nodes_DeleteStatement o, collector
+        collector << "DELETE "
+        collector = visit(o.relation.left, collector) if o.relation.is_a?(Arel::Nodes::JoinSource)
+
+        collector << " FROM "
+        collector = visit o.relation, collector
+
+        unless o.wheres.empty?
+          collector << " WHERE "
+          collector = inject_join o.wheres, collector, ' AND '
+        end
+
+        unless o.orders.empty?
+          collector << " ORDER BY "
+          collector = inject_join o.orders, collector, ', '
+        end
+
+        if o.limit
+          collector << " "
+          visit(o.limit, collector)
+        else
+          collector
+        end
+      end
+
       def visit_Arel_Nodes_UpdateStatement o, collector
         collector << "UPDATE "
         collector = visit o.relation, collector
@@ -71,7 +96,6 @@ module Arel
 
         maybe_visit o.limit, collector
       end
-
     end
   end
 end

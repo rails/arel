@@ -911,7 +911,7 @@ module Arel
         table   = Table.new :users
         manager = Arel::SelectManager.new
         manager.from table
-        stmt = manager.compile_delete
+        stmt = manager.compile_delete Arel::Attributes::Attribute.new(table, 'id')
 
         stmt.to_sql.must_be_like %{ DELETE FROM "users" }
       end
@@ -921,7 +921,7 @@ module Arel
         manager = Arel::SelectManager.new
         manager.from table
         manager.where table[:id].eq 10
-        stmt = manager.compile_delete
+        stmt = manager.compile_delete Arel::Attributes::Attribute.new(table, 'id')
 
         stmt.to_sql.must_be_like %{
           DELETE FROM "users" WHERE "users"."id" = 10

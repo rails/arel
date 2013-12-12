@@ -55,6 +55,44 @@ module Arel
           compile(node).must_be_like "LOCK IN SHARE MODE"
         end
       end
+
+      describe 'extended DELETE' do
+        it "should serialize ORDER and LIMIT" do
+          stmt = Nodes::DeleteStatement.new
+          stmt.relation = Arel.sql('table')
+          stmt.orders << Arel.sql('column')
+          stmt.wheres << Arel.sql('id IS NOT NULL')
+          stmt.limit = Nodes::Limit.new(1)
+          compile(stmt).must_be_like "DELETE FROM table WHERE id IS NOT NULL ORDER BY column LIMIT 1"
+        end
+
+        it "should serialize a join" do
+          stmt = Nodes::DeleteStatement.new
+          stmt.relation = Nodes::JoinSource.new(Arel.sql('table'), [Nodes::StringJoin.new(Arel.sql("INNER JOIN table2 ON table1.id=table2.id"))])
+          stmt.wheres << Arel.sql('id IS NOT NULL')
+          compile(stmt).must_be_like "DELETE table FROM table INNER JOIN table2 ON table1.id=table2.id WHERE id IS NOT NULL"
+        end
+      end
+
+      describe 'extended UPDATE' do
+        it "should serialize ORDER and LIMIT" do
+          stmt = Nodes::UpdateStatement.new
+          stmt.relation = Arel.sql('table')
+          stmt.orders << Arel.sql('column')
+          stmt.wheres << Arel.sql('id IS NOT NULL')
+          stmt.values << Arel.sql('id=id')
+          stmt.limit = Nodes::Limit.new(1)
+          compile(stmt).must_be_like "UPDATE table SET id=id WHERE id IS NOT NULL ORDER BY column LIMIT 1"
+        end
+
+        it "should serialize a join" do
+          stmt = Nodes::UpdateStatement.new
+          stmt.relation = Nodes::JoinSource.new(Arel.sql('table'), [Nodes::StringJoin.new(Arel.sql("INNER JOIN table2 ON table1.id=table2.id"))])
+          stmt.wheres << Arel.sql('id IS NOT NULL')
+          stmt.values << Arel.sql('id=id')
+          compile(stmt).must_be_like "UPDATE table INNER JOIN table2 ON table1.id=table2.id SET id=id WHERE id IS NOT NULL"
+        end
+      end
     end
   end
 end

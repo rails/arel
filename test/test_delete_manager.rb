@@ -11,6 +11,7 @@ module Arel
     it 'handles limit properly' do
       table = Table.new(:users)
       dm = Arel::DeleteManager.new
+      dm.key = Arel::Attributes::Attribute.new(table, 'id')
       dm.take 10
       dm.from table
       assert_match(/LIMIT 10/, dm.to_sql)

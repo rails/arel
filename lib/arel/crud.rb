@@ -29,11 +29,12 @@ module Arel
       InsertManager.new
     end
 
-    def compile_delete
+    def compile_delete pk
       dm = DeleteManager.new
       dm.take @ast.limit.expr if @ast.limit
       dm.wheres = @ctx.wheres
       dm.from @ctx.froms
+      dm.key = pk
       dm
     end
 

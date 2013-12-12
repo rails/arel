@@ -74,14 +74,20 @@ module Arel
       end
 
       def visit_Arel_Nodes_DeleteStatement o, collector
-        collector << 'DELETE FROM '
-        collector = visit o.relation, collector
-        if o.wheres.any?
-          collector << ' WHERE '
-          collector = inject_join o.wheres, collector, AND
+        if o.orders.empty? && o.limit.nil?
+          wheres = o.wheres
+        else
+          wheres = [Nodes::In.new(o.key, [build_subselect(o.key, o)])]
         end
 
-        maybe_visit o.limit, collector
+        collector << "DELETE FROM "
+        collector = visit o.relation, collector
+        if wheres.any?
+          collector << " WHERE "
+          inject_join wheres, collector, AND
+        else
+          collector
+        end
       end
 
       # FIXME: we should probably have a 2-pass visitor for this
