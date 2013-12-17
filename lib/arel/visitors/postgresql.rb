@@ -39,6 +39,45 @@ module Arel
       def visit_Arel_Nodes_BindParam o, collector
         collector.add_bind(o) { |i| "$#{i}" }
       end
+
+      def visit_Arel_Nodes_DeleteStatement o, collector
+        return super if !o.relation.is_a?(Arel::Nodes::JoinSource) || o.relation.right.empty?
+
+        collector << "DELETE FROM "
+        collector = visit o.relation.left, collector
+
+        collector << " USING "
+        collector = inject_join o.relation.right, collector, ", "
+
+        unless o.wheres.empty?
+          collector << " WHERE "
+          collector = inject_join o.wheres, collector, " AND "
+        end
+
+        collector
+      end
+
+      def visit_Arel_Nodes_UpdateStatement o, collector
+        return super if !o.relation.is_a?(Arel::Nodes::JoinSource) || o.relation.right.empty?
+
+        collector << "UPDATE "
+        collector = visit o.relation.left, collector
+
+        unless o.values.empty?
+          collector << " SET "
+          collector = inject_join o.values, collector, ", "
+        end
+
+        collector << " FROM "
+        collector = inject_join o.relation.right, collector, ", "
+
+        unless o.wheres.empty?
+          collector << " WHERE "
+          collector = inject_join o.wheres, collector, " AND "
+        end
+
+        collector
+      end
     end
   end
 end
