@@ -59,5 +59,32 @@ module Arel
         assert_instance_of Arel::DeleteManager, stmt
       end
     end
+
+    it 'allows an insert on table without manager' do
+      table   = Table.new :users
+      stmt = table.compile_insert({table[:id] => 1})
+
+      stmt.to_sql.must_be_like %{
+        INSERT INTO "users" ("id") VALUES (1)
+      }
+    end
+
+    it 'allows an update on table without manager' do
+      table   = Table.new :users
+      stmt = table.compile_update({table[:id] => 1}, Arel::Attributes::Attribute.new(table, 'id'))
+
+      stmt.to_sql.must_be_like %{
+        UPDATE "users" SET "id" = 1
+      }
+    end
+
+    it 'allows a delete on table without manager' do
+      table   = Table.new :users
+      stmt = table.compile_delete
+
+      stmt.to_sql.must_be_like %{
+        DELETE FROM "users"
+      }
+    end
   end
 end

@@ -3,6 +3,8 @@ module Arel
   # FIXME hopefully we can remove this
   module Crud
     def compile_update values, pk
+      return select_manager.compile_update(values, pk) if @ast.nil?
+
       um = UpdateManager.new @engine
 
       if Nodes::SqlLiteral === values
@@ -31,8 +33,13 @@ module Arel
 
     def compile_delete
       dm = DeleteManager.new @engine
-      dm.wheres = @ctx.wheres
-      dm.from @ctx.froms
+      if @ast.nil?
+        dm.from self
+      else
+        dm.wheres = @ctx.wheres
+        dm.from @ctx.froms
+      end
+
       dm
     end
 
