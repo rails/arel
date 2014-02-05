@@ -50,6 +50,16 @@ module Arel
           @visitor.accept(node).must_be_like "LOCK IN SHARE MODE"
         end
       end
+
+      it 'uses BINARY on equality test' do
+        node = Nodes::Equality.new("name", "foo")
+        @visitor.accept(node).must_be_like "'name' = BINARY 'foo'"
+      end
+
+      it 'uses BINARY on inequality test' do
+        node = Nodes::NotEqual.new("name", "foo")
+        @visitor.accept(node).must_be_like "'name' != BINARY 'foo'"
+      end
     end
   end
 end
