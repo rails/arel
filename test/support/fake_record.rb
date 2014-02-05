@@ -107,6 +107,10 @@ module FakeRecord
     def schema_cache
       connection
     end
+
+    def quote *args
+      connection.quote *args
+    end
   end
 
   class Base
