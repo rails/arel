@@ -9,10 +9,12 @@ module Arel
     # This visitor is used in SelectManager#join_sql and is for backwards
     # compatibility with Arel V1.0
     module JoinSql
+      SPACE = ' '
+
       private
 
       def visit_Arel_Nodes_SelectCore o, a
-        o.source.right.map { |j| visit j, a }.join ' '
+        o.source.right.map { |j| visit j, a }.join SPACE
       end
     end
   end

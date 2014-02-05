@@ -422,6 +422,27 @@ module Arel
           end
         end
       end
+
+      if defined?(RubyVM::InstructionSequence.of) # CRuby >= 2.0.0
+        it "should not contain any static string literals in visitor methods" do
+          excluded = [:Dot]
+          (Arel::Visitors.constants - excluded).each do |const_name|
+            klass = Arel::Visitors.const_get(const_name)
+            next unless klass.respond_to?(:private_instance_methods)
+
+            method_iseqs = klass.private_instance_methods(false)
+              .map { |mid| klass.instance_method(mid) }
+              .map { |method| RubyVM::InstructionSequence.of(method) }
+
+            method_iseqs.each do |iseq|
+              instructions = iseq.to_a[13]
+              if instructions.any? { |opcode,| opcode == :putstring }
+                flunk "#{klass}##{iseq.label} contains static string literal(s). Please change these to constant references."
+              end
+            end
+          end
+        end
+      end
     end
   end
 end

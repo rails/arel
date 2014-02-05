@@ -47,15 +47,33 @@ module Arel
       # specialized for specific databases when necessary.
       #
 
-      WHERE    = ' WHERE '    # :nodoc:
-      SPACE    = ' '          # :nodoc:
-      COMMA    = ', '         # :nodoc:
-      GROUP_BY = ' GROUP BY ' # :nodoc:
-      ORDER_BY = ' ORDER BY ' # :nodoc:
-      WINDOW   = ' WINDOW '   # :nodoc:
-      AND      = ' AND '      # :nodoc:
-
-      DISTINCT = 'DISTINCT'   # :nodoc:
+      # :stopdoc:
+      AND         = ' AND '
+      COMMA       = ','
+      COMMA_      = ', '
+      CURRENT_ROW = 'CURRENT ROW'
+      DISTINCT    = 'DISTINCT'
+      DISTINCT_   = 'DISTINCT '
+      DESC        = ' DESC'
+      DUAL        = 'DUAL'
+      EMPTY       = ''
+      FALSE       = 'FALSE'
+      GROUP_BY    = ' GROUP BY '
+      LPAREN      = '('
+      ONE_EQ_ONE  = "1=1"
+      ONE_EQ_ZERO = "1=0"
+      ORDER_BY    = ' ORDER BY '
+      RANGE       = 'RANGE'
+      ROWNUM      = 'ROWNUM'
+      ROWS        = 'ROWS'
+      RPAREN      = ')'
+      SELECT      = 'SELECT'
+      SPACE       = ' '
+      TRUE        = 'TRUE'
+      UNBOUNDED   = 'UNBOUNDED'
+      WHERE       = ' WHERE '
+      WINDOW      = ' WINDOW '
+      # :startdoc
 
       def initialize connection
         @connection     = connection
@@ -70,7 +88,7 @@ module Arel
         [
           "DELETE FROM #{visit o.relation}",
           ("WHERE #{o.wheres.map { |x| visit x }.join AND}" unless o.wheres.empty?)
-        ].compact.join ' '
+        ].compact.join SPACE
       end
 
       # FIXME: we should probably have a 2-pass visitor for this
@@ -94,9 +112,9 @@ module Arel
 
         [
           "UPDATE #{visit o.relation, a}",
-          ("SET #{o.values.map { |value| visit value, a }.join ', '}" unless o.values.empty?),
-          ("WHERE #{wheres.map { |x| visit x, a }.join ' AND '}" unless wheres.empty?),
-        ].compact.join ' '
+          ("SET #{o.values.map { |value| visit value, a }.join COMMA_}" unless o.values.empty?),
+          ("WHERE #{wheres.map { |x| visit x, a }.join AND}" unless wheres.empty?),
+        ].compact.join SPACE
       end
 
       def visit_Arel_Nodes_InsertStatement o, a
@@ -105,23 +123,23 @@ module Arel
 
           ("(#{o.columns.map { |x|
           quote_column_name x.name
-        }.join ', '})" unless o.columns.empty?),
+        }.join COMMA_})" unless o.columns.empty?),
 
           (visit o.values, a if o.values),
-        ].compact.join ' '
+        ].compact.join SPACE
       end
 
       def visit_Arel_Nodes_Exists o, a
         "EXISTS (#{visit o.expressions, a})#{
-          o.alias ? " AS #{visit o.alias, a}" : ''}"
+          o.alias ? " AS #{visit o.alias, a}" : EMPTY}"
       end
 
       def visit_Arel_Nodes_True o, a
-        "TRUE"
+        TRUE
       end
 
       def visit_Arel_Nodes_False o, a
-        "FALSE"
+        FALSE
       end
 
       def table_exists? name
@@ -149,11 +167,11 @@ module Arel
           else
             quote(value, attr && column_for(attr))
           end
-        }.join ', '})"
+        }.join COMMA_})"
       end
 
       def visit_Arel_Nodes_SelectStatement o, a
-        str = ''
+        str = EMPTY.dup
 
         if o.with
           str << visit(o.with, a)
@@ -168,7 +186,7 @@ module Arel
           len = o.orders.length - 1
           o.orders.each_with_index { |x, i|
             str << visit(x, a)
-            str << COMMA unless len == i
+            str << COMMA_ unless len == i
           }
         end
 
@@ -181,7 +199,7 @@ module Arel
       end
 
       def visit_Arel_Nodes_SelectCore o, a
-        str = "SELECT"
+        str = SELECT.dup
 
         str << " #{visit(o.top, a)}"            if o.top
         str << " #{visit(o.set_quantifier, a)}" if o.set_quantifier
@@ -191,7 +209,7 @@ module Arel
           len = o.projections.length - 1
           o.projections.each_with_index do |x, i|
             str << visit(x, a)
-            str << COMMA unless len == i
+            str << COMMA_ unless len == i
           end
         end
 
@@ -211,7 +229,7 @@ module Arel
           len = o.groups.length - 1
           o.groups.each_with_index do |x, i|
             str << visit(x, a)
-            str << COMMA unless len == i
+            str << COMMA_ unless len == i
           end
         end
 
@@ -222,7 +240,7 @@ module Arel
           len = o.windows.length - 1
           o.windows.each_with_index do |x, i|
             str << visit(x, a)
-            str << COMMA unless len == i
+            str << COMMA_ unless len == i
           end
         end
 
@@ -238,15 +256,15 @@ module Arel
       end
 
       def visit_Arel_Nodes_DistinctOn o, a
-        raise NotImplementedError, 'DISTINCT ON not implemented for this db'
+        raise NotImplementedError, "#{DISTINCT} ON not implemented for this db"
       end
 
       def visit_Arel_Nodes_With o, a
-        "WITH #{o.children.map { |x| visit x, a }.join(', ')}"
+        "WITH #{o.children.map { |x| visit x, a }.join(COMMA_)}"
       end
 
       def visit_Arel_Nodes_WithRecursive o, a
-        "WITH RECURSIVE #{o.children.map { |x| visit x, a }.join(', ')}"
+        "WITH RECURSIVE #{o.children.map { |x| visit x, a }.join(COMMA_)}"
       end
 
       def visit_Arel_Nodes_Union o, a
@@ -271,9 +289,9 @@ module Arel
 
       def visit_Arel_Nodes_Window o, a
         s = [
-          ("ORDER BY #{o.orders.map { |x| visit(x, a) }.join(', ')}" unless o.orders.empty?),
+          ("ORDER BY #{o.orders.map { |x| visit(x, a) }.join(COMMA_)}" unless o.orders.empty?),
           (visit o.framing, a if o.framing)
-        ].compact.join ' '
+        ].compact.join SPACE
         "(#{s})"
       end
 
@@ -281,7 +299,7 @@ module Arel
         if o.expr
           "ROWS #{visit o.expr, a}"
         else
-          "ROWS"
+          ROWS
         end
       end
 
@@ -289,20 +307,20 @@ module Arel
         if o.expr
           "RANGE #{visit o.expr, a}"
         else
-          "RANGE"
+          RANGE
         end
       end
 
       def visit_Arel_Nodes_Preceding o, a
-        "#{o.expr ? visit(o.expr, a) : 'UNBOUNDED'} PRECEDING"
+        "#{o.expr ? visit(o.expr, a) : UNBOUNDED} PRECEDING"
       end
 
       def visit_Arel_Nodes_Following o, a
-        "#{o.expr ? visit(o.expr, a) : 'UNBOUNDED'} FOLLOWING"
+        "#{o.expr ? visit(o.expr, a) : UNBOUNDED} FOLLOWING"
       end
 
       def visit_Arel_Nodes_CurrentRow o, a
-        "CURRENT ROW"
+        CURRENT_ROW
       end
 
       def visit_Arel_Nodes_Over o, a
@@ -332,7 +350,7 @@ module Arel
 
       # FIXME: this does nothing on most databases, but does on MSSQL
       def visit_Arel_Nodes_Top o, a
-        ""
+        EMPTY
       end
 
       def visit_Arel_Nodes_Lock o, a
@@ -360,39 +378,39 @@ module Arel
       end
 
       def visit_Arel_Nodes_NamedFunction o, a
-        "#{o.name}(#{o.distinct ? 'DISTINCT ' : ''}#{o.expressions.map { |x|
+        "#{o.name}(#{o.distinct ? DISTINCT_ : EMPTY}#{o.expressions.map { |x|
           visit x, a
-        }.join(', ')})#{o.alias ? " AS #{visit o.alias, a}" : ''}"
+        }.join(COMMA_)})#{o.alias ? " AS #{visit o.alias, a}" : EMPTY}"
       end
 
       def visit_Arel_Nodes_Extract o, a
-        "EXTRACT(#{o.field.to_s.upcase} FROM #{visit o.expr, a})#{o.alias ? " AS #{visit o.alias, a}" : ''}"
+        "EXTRACT(#{o.field.to_s.upcase} FROM #{visit o.expr, a})#{o.alias ? " AS #{visit o.alias, a}" : EMPTY}"
       end
 
       def visit_Arel_Nodes_Count o, a
-        "COUNT(#{o.distinct ? 'DISTINCT ' : ''}#{o.expressions.map { |x|
+        "COUNT(#{o.distinct ? DISTINCT_ : EMPTY}#{o.expressions.map { |x|
           visit x, a
-        }.join(', ')})#{o.alias ? " AS #{visit o.alias, a}" : ''}"
+        }.join(COMMA_)})#{o.alias ? " AS #{visit o.alias, a}" : EMPTY}"
       end
 
       def visit_Arel_Nodes_Sum o, a
-        "SUM(#{o.distinct ? 'DISTINCT ' : ''}#{o.expressions.map { |x|
-          visit x, a }.join(', ')})#{o.alias ? " AS #{visit o.alias, a}" : ''}"
+        "SUM(#{o.distinct ? DISTINCT_ : EMPTY}#{o.expressions.map { |x|
+          visit x, a }.join(COMMA_)})#{o.alias ? " AS #{visit o.alias, a}" : EMPTY}"
       end
 
       def visit_Arel_Nodes_Max o, a
-        "MAX(#{o.distinct ? 'DISTINCT ' : ''}#{o.expressions.map { |x|
-          visit x, a }.join(', ')})#{o.alias ? " AS #{visit o.alias, a}" : ''}"
+        "MAX(#{o.distinct ? DISTINCT_ : EMPTY}#{o.expressions.map { |x|
+          visit x, a }.join(COMMA_)})#{o.alias ? " AS #{visit o.alias, a}" : EMPTY}"
       end
 
       def visit_Arel_Nodes_Min o, a
-        "MIN(#{o.distinct ? 'DISTINCT ' : ''}#{o.expressions.map { |x|
-          visit x, a }.join(', ')})#{o.alias ? " AS #{visit o.alias, a}" : ''}"
+        "MIN(#{o.distinct ? DISTINCT_ : EMPTY}#{o.expressions.map { |x|
+          visit x, a }.join(COMMA_)})#{o.alias ? " AS #{visit o.alias, a}" : EMPTY}"
       end
 
       def visit_Arel_Nodes_Avg o, a
-        "AVG(#{o.distinct ? 'DISTINCT ' : ''}#{o.expressions.map { |x|
-          visit x, a }.join(', ')})#{o.alias ? " AS #{visit o.alias, a}" : ''}"
+        "AVG(#{o.distinct ? DISTINCT_ : EMPTY}#{o.expressions.map { |x|
+          visit x, a }.join(COMMA_)})#{o.alias ? " AS #{visit o.alias, a}" : EMPTY}"
       end
 
       def visit_Arel_Nodes_TableAlias o, a
@@ -437,8 +455,8 @@ module Arel
       def visit_Arel_Nodes_JoinSource o, a
         [
           (visit(o.left, a) if o.left),
-          o.right.map { |j| visit j, a }.join(' ')
-        ].compact.join ' '
+          o.right.map { |j| visit j, a }.join(SPACE)
+        ].compact.join SPACE
       end
 
       def visit_Arel_Nodes_StringJoin o, a
@@ -476,7 +494,7 @@ module Arel
 
       def visit_Arel_Nodes_In o, a
         if Array === o.right && o.right.empty?
-          '1=0'
+          ONE_EQ_ZERO
         else
           a = o.left if Arel::Attributes::Attribute === o.left
           "#{visit o.left, a} IN (#{visit o.right, a})"
@@ -485,7 +503,7 @@ module Arel
 
       def visit_Arel_Nodes_NotIn o, a
         if Array === o.right && o.right.empty?
-          '1=1'
+          ONE_EQ_ONE
         else
           a = o.left if Arel::Attributes::Attribute === o.left
           "#{visit o.left, a} NOT IN (#{visit o.right, a})"
@@ -493,7 +511,7 @@ module Arel
       end
 
       def visit_Arel_Nodes_And o, a
-        o.children.map { |x| visit x, a }.join ' AND '
+        o.children.map { |x| visit x, a }.join AND
       end
 
       def visit_Arel_Nodes_Or o, a
@@ -583,7 +601,7 @@ module Arel
       alias :visit_Arel_Nodes_Division       :visit_Arel_Nodes_InfixOperation
 
       def visit_Array o, a
-        o.map { |x| visit x, a }.join(', ')
+        o.map { |x| visit x, a }.join(COMMA_)
       end
 
       def quote value, column = nil

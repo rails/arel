@@ -7,7 +7,7 @@ module Arel
       # "select top 10 distinct first_name from users", which is invalid query! it should be
       # "select distinct top 10 first_name from users"
       def visit_Arel_Nodes_Top o, a
-        ""
+        EMPTY
       end
 
       def visit_Arel_Nodes_SelectStatement o, a
@@ -15,7 +15,7 @@ module Arel
           return super o, a
         end
 
-        select_order_by = "ORDER BY #{o.orders.map { |x| visit x, a }.join(', ')}" unless o.orders.empty?
+        select_order_by = "ORDER BY #{o.orders.map { |x| visit x, a }.join(COMMA_)}" unless o.orders.empty?
 
         is_select_count = false
         sql = o.cores.map { |x|
@@ -48,7 +48,7 @@ module Arel
 
       def determine_order_by x, a
         unless x.groups.empty?
-          "ORDER BY #{x.groups.map { |g| visit g, a }.join ', ' }"
+          "ORDER BY #{x.groups.map { |g| visit g, a }.join COMMA_}"
         else
           "ORDER BY #{find_left_table_pk(x.froms, a)}"
         end
