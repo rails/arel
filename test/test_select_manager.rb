@@ -1150,5 +1150,19 @@ module Arel
         manager.ast.cores.last.set_quantifier.must_equal nil
       end
     end
+
+    describe "distinct_on" do
+      it "sets the quantifier" do
+        manager = Arel::SelectManager.new Table.engine
+
+        manager.distinct_on("id")
+        quantifier = manager.ast.cores.last.set_quantifier
+        quantifier.class.must_equal Arel::Nodes::DistinctOn
+        quantifier.expr.must_equal "id"
+
+        manager.distinct(false)
+        manager.ast.cores.last.set_quantifier.must_equal nil
+      end
+    end
   end
 end
