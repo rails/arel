@@ -182,6 +182,7 @@ key on UpdateManager using UpdateManager#key=
 
       def visit_Arel_Nodes_Window o
         s = [
+          ("PARTITION BY #{o.partitions.map { |x| visit(x) }.join(', ')}" unless o.partitions.empty?),
           ("ORDER BY #{o.orders.map { |x| visit(x) }.join(', ')}" unless o.orders.empty?),
           (visit o.framing if o.framing)
         ].compact.join ' '

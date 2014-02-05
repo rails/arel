@@ -2,15 +2,23 @@ module Arel
   module Nodes
     class Window < Arel::Nodes::Node
       include Arel::Expression
-      attr_accessor :orders, :framing
+      attr_accessor :orders, :framing, :partitions
 
       def initialize
         @orders = []
+        @partitions = []
       end
 
       def order *expr
         # FIXME: We SHOULD NOT be converting these to SqlLiteral automatically
         @orders.concat expr.map { |x|
+          String === x || Symbol === x ? Nodes::SqlLiteral.new(x.to_s) : x
+        }
+        self
+      end
+
+      def partition(*expr)
+        @partitions.concat expr.map { |x|
           String === x || Symbol === x ? Nodes::SqlLiteral.new(x.to_s) : x
         }
         self
