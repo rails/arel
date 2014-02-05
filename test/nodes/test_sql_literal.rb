@@ -26,6 +26,18 @@ module Arel
         end
       end
 
+      describe "math" do
+        it 'makes a subtraction node' do
+          node = SqlLiteral.new('now()') - SqlLiteral.new("some_column")
+          @visitor.accept(node).must_be_like %{ (now() - some_column) }
+        end
+
+        it 'makes an addition node' do
+          node = SqlLiteral.new('now()') + SqlLiteral.new("some_column")
+          @visitor.accept(node).must_be_like %{ (now() + some_column) }
+        end
+      end
+
       describe 'equality' do
         it 'makes an equality node' do
           node = SqlLiteral.new('foo').eq(1)
