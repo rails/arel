@@ -3,13 +3,6 @@ module Arel
     class MSSQL < Arel::Visitors::ToSql
       private
 
-      # `top` wouldn't really work here. I.e. User.select("distinct first_name").limit(10) would generate
-      # "select top 10 distinct first_name from users", which is invalid query! it should be
-      # "select distinct top 10 first_name from users"
-      def visit_Arel_Nodes_Top o, a
-        ""
-      end
-
       def visit_Arel_Nodes_SelectStatement o, a
         if !o.limit && !o.offset
           return super o, a
