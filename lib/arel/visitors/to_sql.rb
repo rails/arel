@@ -426,12 +426,20 @@ module Arel
 
       def visit_Arel_Nodes_Matches o, a
         a = o.left if Arel::Attributes::Attribute === o.left
-        "#{visit o.left, a} LIKE #{visit o.right, a}"
+        if Arel::Nodes::Not === o.right
+          visit Arel::Nodes::DoesNotMatch.new(o.left, o.right.expr)
+        else
+          "#{visit o.left, a} LIKE #{visit o.right, a}"
+        end
       end
 
       def visit_Arel_Nodes_DoesNotMatch o, a
         a = o.left if Arel::Attributes::Attribute === o.left
-        "#{visit o.left, a} NOT LIKE #{visit o.right, a}"
+        if Arel::Nodes::Not === o.right
+          visit Arel::Nodes::Matches.new(o.left, o.right.expr)
+        else
+          "#{visit o.left, a} NOT LIKE #{visit o.right, a}"
+        end
       end
 
       def visit_Arel_Nodes_JoinSource o, a
@@ -506,24 +514,26 @@ module Arel
       end
 
       def visit_Arel_Nodes_Equality o, a
-        right = o.right
-
         a = o.left if Arel::Attributes::Attribute === o.left
-        if right.nil?
+        case o.right
+        when Arel::Nodes::Not
+          visit Arel::Nodes::NotEqual.new(o.left, o.right.expr)
+        when nil
           "#{visit o.left, a} IS NULL"
         else
-          "#{visit o.left, a} = #{visit right, a}"
+          "#{visit o.left, a} = #{visit o.right, a}"
         end
       end
 
       def visit_Arel_Nodes_NotEqual o, a
-        right = o.right
-
         a = o.left if Arel::Attributes::Attribute === o.left
-        if right.nil?
+        case o.right
+        when Arel::Nodes::Not
+          visit Arel::Nodes::Equality.new(o.left, o.right.expr)
+        when nil
           "#{visit o.left, a} IS NOT NULL"
         else
-          "#{visit o.left, a} != #{visit right, a}"
+          "#{visit o.left, a} != #{visit o.right, a}"
         end
       end
 

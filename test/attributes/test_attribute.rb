@@ -26,6 +26,28 @@ module Arel
             SELECT "users"."id" FROM "users" WHERE "users"."id" IS NOT NULL
           }
         end
+
+        describe 'with negation' do
+          it 'should generate != in sql' do
+            relation = Table.new(:users)
+            mgr = relation.project relation[:id]
+            value = Nodes::Not.new(10)
+            mgr.where relation[:id].not_eq(value)
+            mgr.to_sql.must_be_like %{
+              SELECT "users"."id" FROM "users" WHERE "users"."id" = 10
+            }
+          end
+
+          it 'should handle nil' do
+            relation = Table.new(:users)
+            mgr = relation.project relation[:id]
+            value = Nodes::Not.new(nil)
+            mgr.where relation[:id].not_eq(value)
+            mgr.to_sql.must_be_like %{
+              SELECT "users"."id" FROM "users" WHERE "users"."id" IS NULL
+            }
+          end
+        end
       end
 
       describe '#not_eq_any' do
@@ -40,6 +62,15 @@ module Arel
           mgr.where relation[:id].not_eq_any([1,2])
           mgr.to_sql.must_be_like %{
             SELECT "users"."id" FROM "users" WHERE ("users"."id" != 1 OR "users"."id" != 2)
+          }
+        end
+
+        it 'should handle double negation in sql' do
+          relation = Table.new(:users)
+          mgr = relation.project relation[:id]
+          mgr.where relation[:id].not_eq_any([Nodes::Not.new(1),2])
+          mgr.to_sql.must_be_like %{
+            SELECT "users"."id" FROM "users" WHERE ("users"."id" = 1 OR "users"."id" != 2)
           }
         end
       end
@@ -58,6 +89,15 @@ module Arel
             SELECT "users"."id" FROM "users" WHERE ("users"."id" != 1 AND "users"."id" != 2)
           }
         end
+
+        it 'should handle double negation in sql' do
+          relation = Table.new(:users)
+          mgr = relation.project relation[:id]
+          mgr.where relation[:id].not_eq_all([Nodes::Not.new(1),2])
+          mgr.to_sql.must_be_like %{
+            SELECT "users"."id" FROM "users" WHERE ("users"."id" = 1 AND "users"."id" != 2)
+          }
+        end
       end
 
       describe '#gt' do
@@ -66,7 +106,7 @@ module Arel
           relation[:id].gt(10).must_be_kind_of Nodes::GreaterThan
         end
 
-        it 'should generate >= in sql' do
+        it 'should generate > in sql' do
           relation = Table.new(:users)
           mgr = relation.project relation[:id]
           mgr.where relation[:id].gt(10)
@@ -350,6 +390,26 @@ module Arel
             SELECT "users"."id" FROM "users" WHERE "users"."id" IS NULL
           }
         end
+
+        describe 'with negation' do
+          it 'should generate != in sql' do
+            relation = Table.new(:users)
+            mgr = relation.project relation[:id]
+            mgr.where relation[:id].eq Nodes::Not.new(10)
+            mgr.to_sql.must_be_like %{
+              SELECT "users"."id" FROM "users" WHERE "users"."id" != 10
+            }
+          end
+
+          it 'should handle nil' do
+            relation = Table.new(:users)
+            mgr = relation.project relation[:id]
+            mgr.where relation[:id].eq Nodes::Not.new(nil)
+            mgr.to_sql.must_be_like %{
+              SELECT "users"."id" FROM "users" WHERE "users"."id" IS NOT NULL
+            }
+          end
+        end
       end
 
       describe '#eq_any' do
@@ -373,6 +433,15 @@ module Arel
           values = [1,2]
           mgr.where relation[:id].eq_any(values)
           values.must_equal [1,2]
+        end
+
+        it 'should handle negation in sql' do
+          relation = Table.new(:users)
+          mgr = relation.project relation[:id]
+          mgr.where relation[:id].eq_any([Nodes::Not.new(1),2])
+          mgr.to_sql.must_be_like %{
+            SELECT "users"."id" FROM "users" WHERE ("users"."id" != 1 OR "users"."id" = 2)
+          }
         end
       end
 
@@ -398,6 +467,15 @@ module Arel
           mgr.where relation[:id].eq_all(values)
           values.must_equal [1,2]
         end
+
+        it 'should handle negation in sql' do
+          relation = Table.new(:users)
+          mgr = relation.project relation[:id]
+          mgr.where relation[:id].eq_all([Nodes::Not.new(1),2])
+          mgr.to_sql.must_be_like %{
+            SELECT "users"."id" FROM "users" WHERE ("users"."id" != 1 AND "users"."id" = 2)
+          }
+        end
       end
 
       describe '#matches' do
@@ -414,6 +492,18 @@ module Arel
             SELECT "users"."id" FROM "users" WHERE "users"."name" LIKE '%bacon%'
           }
         end
+
+        describe 'with negation' do
+          it 'should generate NOT LIKE in sql' do
+            relation = Table.new(:users)
+            mgr = relation.project relation[:id]
+            healthy_breakfast = Nodes::Not.new('%bacon%')
+            mgr.where relation[:name].matches(healthy_breakfast)
+            mgr.to_sql.must_be_like %{
+              SELECT "users"."id" FROM "users" WHERE "users"."name" NOT LIKE '%bacon%'
+            }
+          end
+        end
       end
 
       describe '#matches_any' do
@@ -428,6 +518,16 @@ module Arel
           mgr.where relation[:name].matches_any(['%chunky%','%bacon%'])
           mgr.to_sql.must_be_like %{
             SELECT "users"."id" FROM "users" WHERE ("users"."name" LIKE '%chunky%' OR "users"."name" LIKE '%bacon%')
+          }
+        end
+
+        it 'should handle negation in sql' do
+          relation = Table.new(:users)
+          mgr = relation.project relation[:id]
+          smooth = Nodes::Not.new('%chunky%')
+          mgr.where relation[:name].matches_any([smooth,'%bacon%'])
+          mgr.to_sql.must_be_like %{
+            SELECT "users"."id" FROM "users" WHERE ("users"."name" NOT LIKE '%chunky%' OR "users"."name" LIKE '%bacon%')
           }
         end
       end
@@ -446,6 +546,16 @@ module Arel
             SELECT "users"."id" FROM "users" WHERE ("users"."name" LIKE '%chunky%' AND "users"."name" LIKE '%bacon%')
           }
         end
+
+        it 'should handle negation in sql' do
+          relation = Table.new(:users)
+          mgr = relation.project relation[:id]
+          smooth = Nodes::Not.new('%chunky%')
+          mgr.where relation[:name].matches_all([smooth,'%bacon%'])
+          mgr.to_sql.must_be_like %{
+            SELECT "users"."id" FROM "users" WHERE ("users"."name" NOT LIKE '%chunky%' AND "users"."name" LIKE '%bacon%')
+          }
+        end
       end
 
       describe '#does_not_match' do
@@ -461,6 +571,18 @@ module Arel
           mgr.to_sql.must_be_like %{
             SELECT "users"."id" FROM "users" WHERE "users"."name" NOT LIKE '%bacon%'
           }
+        end
+
+        describe 'with negation' do
+          it 'should generate LIKE in sql' do
+            relation = Table.new(:users)
+            mgr = relation.project relation[:id]
+            healthy_breakfast = Nodes::Not.new('%bacon%')
+            mgr.where relation[:name].does_not_match(healthy_breakfast)
+            mgr.to_sql.must_be_like %{
+              SELECT "users"."id" FROM "users" WHERE "users"."name" LIKE '%bacon%'
+            }
+          end
         end
       end
 
@@ -614,6 +736,15 @@ module Arel
           mgr.where relation[:id].eq_all([1,2])
           mgr.to_sql.must_be_like %{
             SELECT "users"."id" FROM "users" WHERE ("users"."id" = 1 AND "users"."id" = 2)
+          }
+        end
+
+        it 'should handle negation in sql' do
+          relation = Table.new(:users)
+          mgr = relation.project relation[:id]
+          mgr.where relation[:id].eq_all([Nodes::Not.new(1),2])
+          mgr.to_sql.must_be_like %{
+            SELECT "users"."id" FROM "users" WHERE ("users"."id" != 1 AND "users"."id" = 2)
           }
         end
       end
