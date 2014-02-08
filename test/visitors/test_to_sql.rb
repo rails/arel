@@ -274,6 +274,20 @@ module Arel
           @visitor.accept(node).must_equal '1=0'
         end
 
+        it "should handle nil" do
+          node = @attr.in [1, 2, nil]
+          @visitor.accept(node).must_be_like %{
+            ("users"."id" IN (1, 2) OR "users"."id" IS NULL)
+          }
+        end
+
+        it "should handle an array with nil values" do
+          node = @attr.in [nil]
+          @visitor.accept(node).must_be_like %{
+            "users"."id" IS NULL
+          }
+        end
+
         it 'can handle two dot ranges' do
           node = @attr.in 1..3
           @visitor.accept(node).must_be_like %{
@@ -375,6 +389,20 @@ module Arel
         it "should return 1=1 when empty right which is always true" do
           node = @attr.not_in []
           @visitor.accept(node).must_equal '1=1'
+        end
+
+        it "should handle nil" do
+          node = @attr.not_in [1, 2, nil]
+          @visitor.accept(node).must_be_like %{
+            ("users"."id" NOT IN (1, 2) AND "users"."id" IS NOT NULL)
+          }
+        end
+
+        it "should handle an array with nil values" do
+          node = @attr.not_in [nil]
+          @visitor.accept(node).must_be_like %{
+            "users"."id" IS NOT NULL
+          }
         end
 
         it 'can handle two dot ranges' do

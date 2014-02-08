@@ -479,7 +479,16 @@ module Arel
           '1=0'
         else
           a = o.left if Arel::Attributes::Attribute === o.left
-          "#{visit o.left, a} IN (#{visit o.right, a})"
+          if Array === o.right && o.right.size != o.right.compact.size
+            c = o.right.compact
+            if c.empty?
+              "#{visit o.left, a} IS NULL"
+            else
+              "(#{visit o.left, a} IN (#{visit c, a}) OR #{visit o.left, a} IS NULL)"
+            end
+          else
+            "#{visit o.left, a} IN (#{visit o.right, a})"
+          end
         end
       end
 
@@ -488,7 +497,16 @@ module Arel
           '1=1'
         else
           a = o.left if Arel::Attributes::Attribute === o.left
-          "#{visit o.left, a} NOT IN (#{visit o.right, a})"
+          if Array === o.right && o.right.size != o.right.compact.size
+            c = o.right.compact
+            if c.empty?
+              "#{visit o.left, a} IS NOT NULL"
+            else
+              "(#{visit o.left, a} NOT IN (#{visit c, a}) AND #{visit o.left, a} IS NOT NULL)"
+            end
+          else
+            "#{visit o.left, a} NOT IN (#{visit o.right, a})"
+          end
         end
       end
 
