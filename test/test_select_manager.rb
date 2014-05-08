@@ -1073,6 +1073,13 @@ module Arel
         manager.distinct(false)
         manager.ast.cores.last.set_quantifier.must_equal nil
       end
+
+      it 'returns the select manager' do
+        table   = Table.new :users
+        manager = Arel::SelectManager.new Table.engine
+
+        manager.distinct.must_equal manager
+      end
     end
   end
 end
