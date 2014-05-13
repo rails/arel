@@ -446,7 +446,7 @@ module Arel
       end
 
       def visit_Arel_Nodes_Group o, collector
-        visit o.expr, collector
+        collector << quote_column_name(o.expr.to_s)
       end
 
       def visit_Arel_Nodes_NamedFunction o, collector
