@@ -46,7 +46,7 @@ module Arel
           manager = Arel::SelectManager.new Table.engine
           manager.from table
           manager.group :foo
-          manager.to_sql.must_be_like %{ SELECT FROM "users" GROUP BY foo }
+          manager.to_sql.must_be_like %{ SELECT FROM "users" GROUP BY "foo" }
         end
       end
 
@@ -655,7 +655,7 @@ module Arel
         manager = Arel::SelectManager.new Table.engine
         manager.from table
         manager.group 'foo'
-        manager.to_sql.must_be_like %{ SELECT FROM "users" GROUP BY foo }
+        manager.to_sql.must_be_like %{ SELECT FROM "users" GROUP BY "foo" }
       end
     end
 

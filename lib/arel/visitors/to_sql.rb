@@ -446,7 +446,11 @@ module Arel
       end
 
       def visit_Arel_Nodes_Group o, collector
-        collector << quote_column_name(o.expr.to_s)
+        if o.expr.to_s.include?(".")
+          visit o.expr, collector
+        else
+          collector << quote_column_name(o.expr.to_s)
+        end
       end
 
       def visit_Arel_Nodes_NamedFunction o, collector
