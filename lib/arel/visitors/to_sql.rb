@@ -751,6 +751,9 @@ module Arel
 
       def quote value, column = nil
         return value if Arel::Nodes::SqlLiteral === value
+        if column
+          value = column.type_cast_for_database(value)
+        end
         @connection.quote value, column
       end
 
