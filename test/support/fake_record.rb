@@ -1,5 +1,8 @@
 module FakeRecord
   class Column < Struct.new(:name, :type)
+    def type_cast_for_database(value)
+      value
+    end
   end
 
   class Connection
