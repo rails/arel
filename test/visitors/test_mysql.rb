@@ -5,6 +5,8 @@ module Arel
     describe 'the mysql visitor' do
       before do
         @visitor = MySQL.new Table.engine.connection
+        @table = Table.new(:users)
+        @attr = @table[:id]
       end
 
       def compile node
@@ -53,6 +55,40 @@ module Arel
         it 'allows a custom string to be used as a lock' do
           node = Nodes::Lock.new(Arel.sql('LOCK IN SHARE MODE'))
           compile(node).must_be_like "LOCK IN SHARE MODE"
+        end
+      end
+
+      describe "Nodes::Regexp" do
+        it "should know how to visit" do
+          node = Arel::Nodes::Regexp.new(@table[:name], Nodes.build_quoted('foo%'))
+          compile(node).must_be_like %{
+            "users"."name" REGEXP 'foo%'
+          }
+        end
+
+        it 'can handle subqueries' do
+          subquery = @table.project(:id).where(Arel::Nodes::Regexp.new(@table[:name], Nodes.build_quoted('foo%')))
+          node = @attr.in subquery
+          compile(node).must_be_like %{
+            "users"."id" IN (SELECT id FROM "users" WHERE "users"."name" REGEXP 'foo%')
+          }
+        end
+      end
+
+      describe "Nodes::NotRegexp" do
+        it "should know how to visit" do
+          node = Arel::Nodes::NotRegexp.new(@table[:name], Nodes.build_quoted('foo%'))
+          compile(node).must_be_like %{
+            "users"."name" NOT REGEXP 'foo%'
+          }
+        end
+
+        it 'can handle subqueries' do
+          subquery = @table.project(:id).where(Arel::Nodes::NotRegexp.new(@table[:name], Nodes.build_quoted('foo%')))
+          node = @attr.in subquery
+          compile(node).must_be_like %{
+            "users"."id" IN (SELECT id FROM "users" WHERE "users"."name" NOT REGEXP 'foo%')
+          }
         end
       end
     end
