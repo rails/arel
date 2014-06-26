@@ -604,9 +604,12 @@ module Arel
 
       def fetch_attribute object, attribute
         case object
-        when Arel::Attributes::Attribute; object
-        when Arel::Nodes::NamedFunction; nil
-        else attribute
+        when Arel::Attributes::Attribute
+          object
+        when Arel::Nodes::NamedFunction
+          nil
+        else
+          attribute
         end
       end
     end
