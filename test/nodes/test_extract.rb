@@ -12,7 +12,7 @@ describe Arel::Nodes::Extract do
     it 'should alias the extract' do
       table = Arel::Table.new :users
       table[:timestamp].extract('date').as('foo').to_sql.must_be_like %{
-        EXTRACT(DATE FROM "users"."timestamp") AS foo
+        EXTRACT(DATE FROM "users"."timestamp") AS 'foo'
       }
     end
   end

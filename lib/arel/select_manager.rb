@@ -48,7 +48,7 @@ module Arel
     end
 
     def as other
-      create_table_alias grouping(@ast), Nodes::SqlLiteral.new(other)
+      create_table_alias grouping(@ast), other
     end
 
     def lock locking = Arel.sql('FOR UPDATE')

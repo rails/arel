@@ -5,7 +5,7 @@ describe Arel::Nodes::Over do
     it 'should alias the expression' do
       table = Arel::Table.new :users
       table[:id].count.over.as('foo').to_sql.must_be_like %{
-        COUNT("users"."id") OVER () AS foo
+        COUNT("users"."id") OVER () AS 'foo'
       }
     end
   end

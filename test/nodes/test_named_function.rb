@@ -14,7 +14,6 @@ module Arel
         function = function.as('wth')
         assert_equal 'omg', function.name
         assert_equal 'zomg', function.expressions
-        assert_kind_of SqlLiteral, function.alias
         assert_equal 'wth', function.alias
       end
 
@@ -22,7 +21,6 @@ module Arel
         function = NamedFunction.new 'omg', 'zomg', 'wth'
         assert_equal 'omg', function.name
         assert_equal 'zomg', function.expressions
-        assert_kind_of SqlLiteral, function.alias
         assert_equal 'wth', function.alias
       end
 
