@@ -80,6 +80,8 @@ module Arel
       case other
       when Arel::Nodes::Node, Arel::Attributes::Attribute, Arel::Table, Arel::Nodes::BindParam, Arel::SelectManager
         other
+      when Array
+        other.map { |item| build_quoted(item, attribute) }
       else
         case attribute
         when Arel::Attributes::Attribute

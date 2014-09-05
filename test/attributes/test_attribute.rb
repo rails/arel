@@ -523,6 +523,14 @@ module Arel
             SELECT "users"."id" FROM "users" WHERE "users"."id" IN (1, 2, 3)
           }
         end
+        it 'should generate IN in sql for nested arrays' do
+          relation = Table.new(:users)
+          mgr = relation.project relation[:id]
+          mgr.where relation[:id].in([[[1]],[2],3])
+          mgr.to_sql.must_be_like %{
+            SELECT "users"."id" FROM "users" WHERE "users"."id" IN (1, 2, 3)
+          }
+        end
       end
 
       describe '#in_any' do
