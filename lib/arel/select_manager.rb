@@ -1,5 +1,3 @@
-require 'arel/collectors/sql_string'
-
 module Arel
   class SelectManager < Arel::TreeManager
     include Arel::Crud
