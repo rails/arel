@@ -13,22 +13,6 @@ module Arel
         @children = @children.map {|child| child.clone}
       end
 
-      def left
-        children.first
-      end
-
-      def left= child
-        children[0] = child
-      end
-
-      def right
-        children[1]
-      end
-
-      def right= child
-        children[1] = child
-      end
-
       def << child
         children << child
       end

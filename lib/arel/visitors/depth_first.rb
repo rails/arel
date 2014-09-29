@@ -55,8 +55,9 @@ module Arel
       def nary o
         o.children.each { |child| visit child}
       end
-      alias :visit_Arel_Nodes_And :nary
-      alias :visit_Arel_Nodes_Or  :nary
+      alias :visit_Arel_Nodes_And   :nary
+      alias :visit_Arel_Nodes_Or    :nary
+      alias :visit_Arel_Nodes_Union :nary
 
       def binary o
         visit o.left
@@ -86,7 +87,6 @@ module Arel
       alias :visit_Arel_Nodes_RightOuterJoin     :binary
       alias :visit_Arel_Nodes_TableAlias         :binary
       alias :visit_Arel_Nodes_Values             :binary
-      alias :visit_Arel_Nodes_Union              :binary
 
       def visit_Arel_Nodes_StringJoin o
         visit o.left

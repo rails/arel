@@ -70,7 +70,7 @@ module Arel
 
       def visit_Arel_Nodes_Except o, collector
         collector << "( "
-        collector = infix_value o, collector, " MINUS "
+        inject_join o.children, collector, " MINUS "
         collector << " )"
       end
 
