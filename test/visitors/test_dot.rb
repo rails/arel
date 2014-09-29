@@ -57,7 +57,6 @@ module Arel
         Arel::Nodes::Matches,
         Arel::Nodes::NotEqual,
         Arel::Nodes::NotIn,
-        Arel::Nodes::Or,
         Arel::Nodes::TableAlias,
         Arel::Nodes::Values,
         Arel::Nodes::As,
