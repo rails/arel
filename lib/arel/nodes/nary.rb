@@ -13,10 +13,6 @@ module Arel
         @children = @children.map {|child| child.clone}
       end
 
-      def << child
-        children << child
-      end
-
       def hash
         children.hash
       end
