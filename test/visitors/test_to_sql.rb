@@ -405,6 +405,29 @@ module Arel
           compile(node).must_be_like %{1=1}
         end
 
+        it 'can handle BigDecimal ranges bounded by infinity' do
+          node = @attr.in BigDecimal.new(1)..BigDecimal.new('Infinity')
+          compile(node).must_be_like %{
+            "users"."id" >= 1
+          }
+          node = @attr.in BigDecimal.new(1)...BigDecimal.new('Infinity')
+          compile(node).must_be_like %{
+            "users"."id" >= 1
+          }
+          node = @attr.in BigDecimal.new('-Infinity')..BigDecimal.new(3)
+          compile(node).must_be_like %{
+            "users"."id" <= 3
+          }
+          node = @attr.in BigDecimal.new('-Infinity')...BigDecimal.new(3)
+          compile(node).must_be_like %{
+            "users"."id" < 3
+          }
+          node = @attr.in BigDecimal.new('-Infinity')..BigDecimal.new('Infinity')
+          compile(node).must_be_like %{1=1}
+          node = @attr.in BigDecimal.new('-Infinity')...BigDecimal.new('Infinity')
+          compile(node).must_be_like %{1=1}
+        end
+
         it 'can handle subqueries' do
           table = Table.new(:users)
           subquery = table.project(:id).where(table[:name].eq('Aaron'))
