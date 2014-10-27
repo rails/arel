@@ -12,6 +12,7 @@ require 'arel/attributes'
 require 'arel/compatibility/wheres'
 
 require 'arel/visitors'
+require 'arel/collectors'
 
 require 'arel/tree_manager'
 require 'arel/insert_manager'
