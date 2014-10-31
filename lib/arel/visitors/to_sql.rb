@@ -147,6 +147,10 @@ module Arel
         end
       end
 
+      def visit_Arel_Nodes_LazyReplacement o, collector
+        collector << o
+      end
+
       def visit_Arel_Nodes_Casted o, collector
         collector << quoted(o.val, o.attribute).to_s
       end

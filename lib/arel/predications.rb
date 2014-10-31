@@ -25,22 +25,27 @@ module Arel
     end
 
     def between other
-      if other.begin == -Float::INFINITY
-        if other.end == Float::INFINITY
-          not_in([])
-        elsif other.exclude_end?
-          lt(other.end)
-        else
-          lteq(other.end)
-        end
-      elsif other.end == Float::INFINITY
-        gteq(other.begin)
-      elsif other.exclude_end?
-        gteq(other.begin).and(lt(other.end))
+      case other
+      when PerformLazyReplacement
+        Nodes::LazyReplacement.new(&method(:between))
       else
-        left = quoted_node(other.begin)
-        right = quoted_node(other.end)
-        Nodes::Between.new(self, left.and(right))
+        if other.begin == -Float::INFINITY
+          if other.end == Float::INFINITY
+            not_in([])
+          elsif other.exclude_end?
+            lt(other.end)
+          else
+            lteq(other.end)
+          end
+        elsif other.end == Float::INFINITY
+          gteq(other.begin)
+        elsif other.exclude_end?
+          gteq(other.begin).and(lt(other.end))
+        else
+          left = quoted_node(other.begin)
+          right = quoted_node(other.end)
+          Nodes::Between.new(self, left.and(right))
+        end
       end
     end
 
@@ -56,6 +61,7 @@ Passing a range to `#in` is deprecated. Call `#between`, instead.
         end
         between(other)
       when Array
+      when Array, PerformLazyReplacement
         Nodes::In.new self, quoted_array(other)
       else
         Nodes::In.new self, quoted_node(other)
@@ -71,24 +77,29 @@ Passing a range to `#in` is deprecated. Call `#between`, instead.
     end
 
     def not_between other
-      if other.begin == -Float::INFINITY # The range begins with negative infinity
-        if other.end == Float::INFINITY
-          self.in([])
-        elsif other.exclude_end?
-          gteq(other.end)
-        else
-          gt(other.end)
-        end
-      elsif other.end == Float::INFINITY
-        lt(other.begin)
+      case other
+      when PerformLazyReplacement
+        Nodes::LazyReplacement.new(&method(:not_between))
       else
-        left = lt(other.begin)
-        right = if other.exclude_end?
-          gteq(other.end)
+        if other.begin == -Float::INFINITY # The range begins with negative infinity
+          if other.end == Float::INFINITY
+            self.in([])
+          elsif other.exclude_end?
+            gteq(other.end)
+          else
+            gt(other.end)
+          end
+        elsif other.end == Float::INFINITY
+          lt(other.begin)
         else
-          gt(other.end)
+          left = lt(other.begin)
+          right = if other.exclude_end?
+            gteq(other.end)
+          else
+            gt(other.end)
+          end
+          left.or(right)
         end
-        left.or(right)
       end
     end
 
@@ -103,7 +114,7 @@ Passing a range to `#not_in` is deprecated. Call `#not_between`, instead.
           eowarn
         end
         not_between(other)
-      when Array
+      when Array, PerformLazyReplacement
         Nodes::NotIn.new self, quoted_array(other)
       else
         Nodes::NotIn.new self, quoted_node(other)
@@ -204,12 +215,32 @@ Passing a range to `#not_in` is deprecated. Call `#not_between`, instead.
       Nodes::Grouping.new Nodes::And.new(nodes)
     end
 
-    def quoted_node(other)
-      Nodes.build_quoted(other, self)
+    def quoted_node other
+      case other
+      when PerformLazyReplacement
+        Nodes::LazyReplacement.new { |value| Nodes.build_quoted(value, nil) }
+      else
+        emit_casting_deprecation_warning
+        Nodes.build_quoted(other, self)
+      end
     end
 
-    def quoted_array(others)
-      others.map { |v| quoted_node(v) }
+    def quoted_array others
+      case others
+      when PerformLazyReplacement
+        Nodes::LazyReplacement.new { |values| values.map { |v| Nodes.build_quoted(v, nil) } }
+      else
+        emit_casting_deprecation_warning
+        others.map { |v| Nodes.build_quoted(v, self) }
+      end
+    end
+
+    def emit_casting_deprecation_warning
+      if $VERBOSE
+        warn <<-eowarn
+Arel will no longer automatically cast values... Other deprecation instructions.
+        eowarn
+      end
     end
   end
 end

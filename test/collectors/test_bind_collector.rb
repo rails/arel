@@ -15,7 +15,7 @@ module Arel
       end
 
       def compile node
-        collect(node).value
+        collect(node).send(:parts)
       end
 
       def ast_with_binds bv
@@ -45,13 +45,13 @@ module Arel
         bv = Nodes::BindParam.new('?')
         collector = collect ast_with_binds bv
 
-        values = collector.value
+        values = collector.send(:parts)
 
         offsets = values.map.with_index { |v,i|
           [v,i]
         }.find_all { |(v,_)| Nodes::BindParam === v }.map(&:last)
 
-        list = collector.substitute_binds ["hello", "world"]
+        list = collector.send(:substitute_binds, ["hello", "world"], values)
         assert_equal "hello", list[offsets[0]]
         assert_equal "world", list[offsets[1]]
 

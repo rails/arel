@@ -53,6 +53,7 @@ require 'arel/nodes/right_outer_join'
 require 'arel/nodes/string_join'
 
 require 'arel/nodes/sql_literal'
+require 'arel/nodes/lazy_replacement'
 
 module Arel
   module Nodes

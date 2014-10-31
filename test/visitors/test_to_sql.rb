@@ -593,6 +593,35 @@ module Arel
           end
         end
       end
+
+      describe 'Nodes::LazyReplacement' do
+        it 'adds the node directly to the collector' do
+          node = Arel::Nodes::LazyReplacement.new
+
+          result = @visitor.accept(node, Collectors::Base.new)
+
+          assert_equal result.send(:parts), [node]
+        end
+
+        it 'can have its value substituted during compilation' do
+          node = Arel::Nodes::LazyReplacement.new { |v| Nodes::SqlLiteral.new("replaced #{v}") }
+
+          result = @visitor.accept(node, Collectors::Base.new)
+          sql = result.execute_lazy_replacements(["foo"], @visitor).compile([])
+
+          assert_equal sql, "replaced foo"
+        end
+
+        it 'raises an error if left unreplaced' do
+          node = Arel::Nodes::LazyReplacement.new { |v| Nodes::SqlLiteral.new("replaced #{v}") }
+
+          result = @visitor.accept(node, Collectors::Base.new)
+
+          assert_raises(ArgumentError) do
+            result.compile([])
+          end
+        end
+      end
     end
   end
 end

@@ -12,6 +12,7 @@ require 'arel/attributes'
 require 'arel/compatibility/wheres'
 
 require 'arel/visitors'
+require 'arel/collectors'
 
 require 'arel/tree_manager'
 require 'arel/insert_manager'
@@ -19,6 +20,8 @@ require 'arel/select_manager'
 require 'arel/update_manager'
 require 'arel/delete_manager'
 require 'arel/nodes'
+
+require 'arel/perform_lazy_replacement'
 
 module Arel
   VERSION = '6.0.0.beta2'
