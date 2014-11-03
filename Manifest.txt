@@ -74,7 +74,6 @@ lib/arel/visitors/informix.rb
 lib/arel/visitors/mssql.rb
 lib/arel/visitors/mysql.rb
 lib/arel/visitors/oracle.rb
-lib/arel/visitors/oracle12.rb
 lib/arel/visitors/postgresql.rb
 lib/arel/visitors/reduce.rb
 lib/arel/visitors/sqlite.rb
@@ -131,7 +130,6 @@ test/visitors/test_informix.rb
 test/visitors/test_mssql.rb
 test/visitors/test_mysql.rb
 test/visitors/test_oracle.rb
-test/visitors/test_oracle12.rb
 test/visitors/test_postgres.rb
 test/visitors/test_sqlite.rb
 test/visitors/test_to_sql.rb
