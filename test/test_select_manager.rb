@@ -1177,5 +1177,19 @@ module Arel
         manager.distinct_on(false).must_equal manager
       end
     end
+
+    describe 'comment' do
+      it 'makes sql' do
+        manager = Arel::SelectManager.new Table.engine
+        manager.comment("XXX")
+        manager.to_sql.must_be_like 'SELECT /* XXX */'
+      end
+
+      it 'makes sql chains' do
+        manager = Arel::SelectManager.new Table.engine
+        manager.comment("XXX").comment("YYY")
+        manager.to_sql.must_be_like 'SELECT /* XXX YYY */'
+      end
+    end
   end
 end

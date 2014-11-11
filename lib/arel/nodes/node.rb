@@ -5,6 +5,8 @@ module Arel
     ###
     # Abstract base class for all AST nodes
     class Node
+      attr_accessor :comments
+
       include Arel::FactoryMethods
       include Enumerable
 
