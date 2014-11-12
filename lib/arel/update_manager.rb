@@ -1,9 +1,10 @@
 module Arel
   class UpdateManager < Arel::TreeManager
-    def initialize engine
-      super
+    def initialize engine, table = nil
+      super(engine)
       @ast = Nodes::UpdateStatement.new
-      @ctx = @ast
+      @ctx    = @ast.cores.last
+      from table
     end
 
     def take limit
@@ -37,6 +38,19 @@ module Arel
 
     def where expr
       @ast.wheres << expr
+      self
+    end
+
+    def from table
+      table = Nodes::SqlLiteral.new(table) if String === table
+
+      case table
+      when Nodes::Join
+        @ctx.source.right << table
+      else
+        @ctx.source.left = table
+      end
+
       self
     end
 

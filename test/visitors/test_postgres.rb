@@ -49,6 +49,38 @@ module Arel
         core.set_quantifier = Arel::Nodes::Distinct.new
         assert_equal 'SELECT DISTINCT', compile(core)
       end
+    
+      it 'generates an update statement with a FROM instead of join' do
+        posts = Table.new(:posts)
+        relation = Arel::Nodes::JoinSource.new(
+          @table,
+          [@table.create_join(posts)]
+        )
+        stmt = Arel::Nodes::UpdateStatement.new
+        stmt.relation = relation
+
+        stmt.values << @table[:name].eq(posts[:title])
+        stmt.wheres << posts[:user_id].eq(@table[:id])
+
+        assert_equal("UPDATE \"users\" SET \"users\".\"name\" = \"posts\".\"title\" FROM \"posts\" WHERE \"posts\".\"user_id\" = \"users\".\"id\"", compile(stmt))
+      end
+
+      it 'should have a valid UpdateManager with FROM instead of JOINS' do
+        normal_visitor = Table.engine.connection.visitor
+        # set postgresql as visitor to test
+        Table.engine.connection.visitor = @visitor
+
+        um = Arel::UpdateManager.new Table.engine
+        join_source = Arel::Nodes::JoinSource.new(
+          @table,
+          [@table.create_join(Table.new(:posts))]
+        )
+
+        um.table join_source
+        um.to_sql.must_be_like %{ UPDATE "users" FROM "posts" }
+        # revert back to_sql as visitor
+        Table.engine.connection.visitor = normal_visitor
+      end
 
       describe "Nodes::Matches" do
         it "should know how to visit" do
