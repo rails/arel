@@ -37,6 +37,11 @@ module Arel
           compile(node).must_be_like %{ foo = 1 }
         end
 
+        it 'makes an equality node with null value' do
+          node = SqlLiteral.new('foo').eq(nil)
+          compile(node).must_be_like %{ foo IS NULL }
+        end
+
         it 'is equal with equal contents' do
           array = [SqlLiteral.new('foo'), SqlLiteral.new('foo')]
           assert_equal 1, array.uniq.size
