@@ -2,6 +2,7 @@ language: ruby
 script: 
   - "rake test"
   - "gem build arel.gemspec"
+env: JRUBY_OPTS=--2.0
 rvm:
   - rbx
   - jruby
