@@ -11,7 +11,9 @@ module Arel
     # TableAlias and Table both have a #table_name which is the name of the underlying table
     alias :table_name :name
 
-    def initialize(name, as: nil, type_caster: nil)
+    def initialize(name, options = {})
+      as = options[:as]
+      type_caster = options[:type_caster]
       @name    = name.to_s
       @columns = nil
       @aliases = []
