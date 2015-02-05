@@ -32,6 +32,7 @@ module Arel
     def compile_delete
       dm = DeleteManager.new
       dm.wheres = @ctx.wheres
+      dm.source = @ctx.source
       dm.from @ctx.froms
       dm
     end

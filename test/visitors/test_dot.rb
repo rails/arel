@@ -62,7 +62,6 @@ module Arel
         Arel::Nodes::TableAlias,
         Arel::Nodes::Values,
         Arel::Nodes::As,
-        Arel::Nodes::DeleteStatement,
         Arel::Nodes::JoinSource,
       ].each do |klass|
         define_method("test_#{klass.name.gsub('::', '_')}") do

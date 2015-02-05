@@ -11,6 +11,10 @@ module Arel
       self
     end
 
+    def source= source
+      @ast.source = source
+    end
+
     def wheres= list
       @ast.wheres = list
     end

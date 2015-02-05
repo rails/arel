@@ -72,6 +72,14 @@ module Arel
         maybe_visit o.limit, collector
       end
 
+      def visit_Arel_Nodes_DeleteStatement o
+        [
+          "DELETE FROM #{visit o.relation}",
+          ("USING #{visit(o.source)}" if o.source && o.source.right && !o.source.right.empty?),
+          ("WHERE #{o.wheres.map { |x| visit x }.join ' AND '}" unless o.wheres.empty?)
+        ].compact.join ' '
+      end
+
     end
   end
 end

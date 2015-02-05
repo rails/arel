@@ -65,7 +65,6 @@ module Arel
       alias :visit_Arel_Nodes_As                 :binary
       alias :visit_Arel_Nodes_Assignment         :binary
       alias :visit_Arel_Nodes_Between            :binary
-      alias :visit_Arel_Nodes_DeleteStatement    :binary
       alias :visit_Arel_Nodes_DoesNotMatch       :binary
       alias :visit_Arel_Nodes_Equality           :binary
       alias :visit_Arel_Nodes_FullOuterJoin      :binary
@@ -163,6 +162,12 @@ module Arel
         visit o.wheres
         visit o.orders
         visit o.limit
+      end
+
+      def visit_Arel_Nodes_DeleteStatement o
+        visit o.relation
+        visit o.source
+        visit o.wheres
       end
 
       def visit_Array o

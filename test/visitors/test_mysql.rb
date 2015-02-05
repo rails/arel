@@ -55,6 +55,26 @@ module Arel
           compile(node).must_be_like "LOCK IN SHARE MODE"
         end
       end
+
+      describe 'deleting' do
+        it 'adds join sources if present to USING clause' do
+          stmt = Nodes::DeleteStatement.new
+          stmt.relation = Table.new(:users)
+          stmt.source = Nodes::JoinSource.new stmt.relation
+          stmt.source.right << Nodes::StringJoin.new('foo');
+          sql = @visitor.accept(stmt)
+          sql.must_be_like %{ DELETE FROM "users" USING "users" 'foo' }
+        end
+
+        it 'does not include USING clause without join sources' do
+          stmt = Nodes::DeleteStatement.new
+          stmt.relation = Table.new(:users)
+          stmt.source = Nodes::JoinSource.new stmt.relation
+          sql = @visitor.accept(stmt)
+          sql.must_be_like %{ DELETE FROM "users" }
+        end
+      end
+
     end
   end
 end
