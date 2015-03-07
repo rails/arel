@@ -55,8 +55,13 @@ module Arel
       ORDER_BY = ' ORDER BY ' # :nodoc:
       WINDOW   = ' WINDOW '   # :nodoc:
       AND      = ' AND '      # :nodoc:
+      SET      = ' SET '      # :nodoc:
+      UNION    = ' UNION '    # :nodoc:
+      FROM     = ' FROM '     # :nodoc:
+      ESCAPE   = ' ESCAPE '   # :nodoc:
 
       DISTINCT = 'DISTINCT'   # :nodoc:
+      UPDATE   = 'UPDATE '    # :nodoc:
 
       def initialize connection
         super()
@@ -103,10 +108,10 @@ module Arel
           wheres = [Nodes::In.new(o.key, [build_subselect(o.key, o)])]
         end
 
-        collector << "UPDATE "
+        collector << UPDATE
         collector = visit o.relation, collector
         unless o.values.empty?
-          collector << " SET "
+          collector << SET
           collector = inject_join o.values, collector, ", "
         end
 
@@ -243,7 +248,7 @@ module Arel
         end
 
         if o.source && !o.source.empty?
-          collector << " FROM "
+          collector << FROM
           collector = visit o.source, collector
         end
 
@@ -306,7 +311,7 @@ module Arel
 
       def visit_Arel_Nodes_Union o, collector
         collector << "( "
-        infix_value(o, collector, " UNION ") << " )"
+        infix_value(o, collector, UNION) << " )"
       end
 
       def visit_Arel_Nodes_UnionAll o, collector
@@ -530,7 +535,7 @@ module Arel
         collector << " LIKE "
         collector = visit o.right, collector
         if o.escape
-          collector << ' ESCAPE '
+          collector << ESCAPE
           visit o.escape, collector
         else
           collector
@@ -542,7 +547,7 @@ module Arel
         collector << " NOT LIKE "
         collector = visit o.right, collector
         if o.escape
-          collector << ' ESCAPE '
+          collector << ESCAPE
           visit o.escape, collector
         else
           collector

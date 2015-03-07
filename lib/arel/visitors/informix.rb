@@ -20,7 +20,7 @@ module Arel
         froms = false
         if o.source && !o.source.empty?
           froms = true
-          collector << " FROM "
+          collector << FROM
           collector = visit o.source, collector
         end
 
