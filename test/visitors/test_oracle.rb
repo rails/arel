@@ -124,6 +124,24 @@ module Arel
             }
           end
 
+          it 'accounts for TableAliases with Symbols' do
+            table = Table.new(:some_table)
+            table_alias = Nodes::TableAlias.new(table, :some_alias)
+            core = Nodes::SelectCore.new
+            core.source = Arel::Nodes::JoinSource.new(table_alias, [])
+            stmt = Nodes::SelectStatement.new([core])
+            stmt.limit = Nodes::Limit.new(Nodes.build_quoted(10))
+            stmt.offset = Nodes::Offset.new(10)
+            compile(stmt).must_be_like %{
+              SELECT * FROM (
+                SELECT raw_sql_.*, rownum raw_rnum_
+                FROM (SELECT FROM "some_table" "some_alias" ) raw_sql_
+                WHERE rownum <= 20
+              )
+              WHERE raw_rnum_ > 10
+            }
+          end
+
           it 'is idempotent with different subquery' do
             stmt = Nodes::SelectStatement.new
             stmt.limit = Nodes::Limit.new(Nodes.build_quoted(10))
