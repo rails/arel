@@ -76,7 +76,7 @@ module Arel
         collector << 'FROM '
         collector = visit o.relation, collector
         if o.wheres.any?
-          collector << ' WHERE '
+          collector << WHERE
           inject_join o.wheres, collector, AND
         else
           collector

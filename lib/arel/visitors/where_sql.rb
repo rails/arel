@@ -5,7 +5,7 @@ module Arel
 
       def visit_Arel_Nodes_SelectCore o, collector
         collector << "WHERE "
-        inject_join o.wheres, collector, ' AND '
+        inject_join o.wheres, collector, AND
       end
     end
   end

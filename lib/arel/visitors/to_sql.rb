@@ -77,7 +77,7 @@ module Arel
         collector << 'DELETE FROM '
         collector = visit o.relation, collector
         if o.wheres.any?
-          collector << ' WHERE '
+          collector << WHERE
           collector = inject_join o.wheres, collector, AND
         end
 
@@ -111,8 +111,8 @@ module Arel
         end
 
         unless wheres.empty?
-          collector << " WHERE "
-          collector = inject_join wheres, collector, " AND "
+          collector << WHERE
+          collector = inject_join wheres, collector, AND
         end
 
         collector
@@ -638,7 +638,7 @@ module Arel
       end
 
       def visit_Arel_Nodes_And o, collector
-        inject_join o.children, collector, " AND "
+        inject_join o.children, collector, AND
       end
 
       def visit_Arel_Nodes_Or o, collector

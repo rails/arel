@@ -60,8 +60,8 @@ module Arel
         end
 
         unless o.wheres.empty?
-          collector << " WHERE "
-          collector = inject_join o.wheres, collector, ' AND '
+          collector << WHERE
+          collector = inject_join o.wheres, collector, AND
         end
 
         unless o.orders.empty?

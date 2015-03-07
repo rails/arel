@@ -25,8 +25,8 @@ module Arel
         end
 
         if o.wheres.any?
-          collector << " WHERE "
-          collector = inject_join o.wheres, collector, " AND "
+          collector << WHERE
+          collector = inject_join o.wheres, collector, AND
         end
 
         if o.groups.any?
@@ -36,7 +36,7 @@ module Arel
 
         if o.havings.any?
           collector << " HAVING "
-          collector = inject_join o.havings, collector, " AND "
+          collector = inject_join o.havings, collector, AND
         end
         collector
       end
