@@ -6,7 +6,7 @@ module Arel
       def visit_Arel_Nodes_Matches o, collector
         collector = infix_value o, collector, ' ILIKE '
         if o.escape
-          collector << ' ESCAPE '
+          collector << ESCAPE
           visit o.escape, collector
         else
           collector
@@ -16,7 +16,7 @@ module Arel
       def visit_Arel_Nodes_DoesNotMatch o, collector
         collector = infix_value o, collector, ' NOT ILIKE '
         if o.escape
-          collector << ' ESCAPE '
+          collector << ESCAPE
           visit o.escape, collector
         else
           collector

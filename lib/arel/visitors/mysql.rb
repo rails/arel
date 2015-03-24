@@ -14,7 +14,7 @@ module Arel
                         visit o.left, collector
                       end
 
-        collector << " UNION "
+        collector << UNION
 
         collector =    case o.right
                        when Arel::Nodes::Union
@@ -51,21 +51,21 @@ module Arel
       end
 
       def visit_Arel_Nodes_UpdateStatement o, collector
-        collector << "UPDATE "
+        collector << UPDATE
         collector = visit o.relation, collector
 
         unless o.values.empty?
-          collector << " SET "
+          collector << SET
           collector = inject_join o.values, collector, ', '
         end
 
         unless o.wheres.empty?
-          collector << " WHERE "
-          collector = inject_join o.wheres, collector, ' AND '
+          collector << WHERE
+          collector = inject_join o.wheres, collector, AND
         end
 
         unless o.orders.empty?
-          collector << " ORDER BY "
+          collector << ORDER_BY
           collector = inject_join o.orders, collector, ', '
         end
 
