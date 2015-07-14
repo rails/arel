@@ -11,8 +11,8 @@ module Arel
 
       def initialize_copy other
         super
-        @left  = @left.clone if @left
-        @right = @right.clone if @right
+        @left  = @left.clone if @left && !@left.is_a?(Symbol)
+        @right = @right.clone if @right && !@right.is_a?(Symbol)
       end
 
       def hash
