@@ -23,6 +23,14 @@ module Arel
           assert_equal 2, array.uniq.size
         end
       end
+
+      describe '#clone' do
+        it 'works when using a symbol for the alias' do
+          relation = Table.new(:users)
+          node     = TableAlias.new relation, :foo
+          assert node.clone
+        end
+      end
     end
   end
 end
