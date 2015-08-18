@@ -344,7 +344,7 @@ module Arel
 
         if o.orders.any?
           collector << ' ' if o.partitions.any?
-          collector << "ORDER BY "
+          collector << ORDER_BY
           collector = inject_join o.orders, collector, COMMA
         end
 
