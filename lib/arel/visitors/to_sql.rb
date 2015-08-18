@@ -48,15 +48,15 @@ module Arel
       # specialized for specific databases when necessary.
       #
 
-      WHERE    = ' WHERE '    # :nodoc:
-      SPACE    = ' '          # :nodoc:
-      COMMA    = ', '         # :nodoc:
-      GROUP_BY = ' GROUP BY ' # :nodoc:
-      ORDER_BY = ' ORDER BY ' # :nodoc:
-      WINDOW   = ' WINDOW '   # :nodoc:
-      AND      = ' AND '      # :nodoc:
+      WHERE    = ' WHERE '.freeze    # :nodoc:
+      SPACE    = ' '.freeze          # :nodoc:
+      COMMA    = ', '.freeze         # :nodoc:
+      GROUP_BY = ' GROUP BY '.freeze # :nodoc:
+      ORDER_BY = ' ORDER BY '.freeze # :nodoc:
+      WINDOW   = ' WINDOW '.freeze   # :nodoc:
+      AND      = ' AND '.freeze      # :nodoc:
 
-      DISTINCT = 'DISTINCT'   # :nodoc:
+      DISTINCT = 'DISTINCT'.freeze   # :nodoc:
 
       def initialize connection
         super()
