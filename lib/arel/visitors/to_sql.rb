@@ -112,7 +112,7 @@ module Arel
 
         unless wheres.empty?
           collector << " WHERE "
-          collector = inject_join wheres, collector, " AND "
+          collector = inject_join wheres, collector, AND
         end
 
         collector
@@ -648,7 +648,7 @@ module Arel
       end
 
       def visit_Arel_Nodes_And o, collector
-        inject_join o.children, collector, " AND "
+        inject_join o.children, collector, AND
       end
 
       def visit_Arel_Nodes_Or o, collector
