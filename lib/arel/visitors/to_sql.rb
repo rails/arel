@@ -59,8 +59,8 @@ module Arel
       DISTINCT = 'DISTINCT'.freeze   # :nodoc:
 
       def initialize connection
-        super()
-        @connection     = connection
+        super
+        @connection = connection
       end
 
       def compile node, &block
