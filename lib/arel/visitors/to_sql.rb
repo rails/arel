@@ -56,7 +56,7 @@ module Arel
       WINDOW   = ' WINDOW '.freeze   # :nodoc:
       AND      = ' AND '.freeze      # :nodoc:
 
-      DISTINCT = 'DISTINCT'.freeze   # :nodoc:
+      DISTINCT = 'DISTINCT '.freeze   # :nodoc:
 
       def initialize connection
         super
@@ -458,7 +458,7 @@ module Arel
       def visit_Arel_Nodes_NamedFunction o, collector
         collector << o.name
         collector << "("
-        collector << "DISTINCT " if o.distinct
+        collector << DISTINCT if o.distinct
         collector = inject_join(o.expressions, collector, COMMA) << ")"
         if o.alias
           collector << " AS "
@@ -815,7 +815,7 @@ module Arel
       def aggregate name, o, collector
         collector << "#{name}("
         if o.distinct
-          collector << "DISTINCT "
+          collector << DISTINCT
         end
         collector = inject_join(o.expressions, collector, COMMA) << ")"
         if o.alias
