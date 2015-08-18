@@ -57,7 +57,7 @@ module Arel
       AND      = ' AND '.freeze      # :nodoc:
       AS       = ' AS '.freeze       # :nodoc:
 
-      DISTINCT = 'DISTINCT '.freeze   # :nodoc:
+      DISTINCT = 'DISTINCT '.freeze  # :nodoc:
 
       def initialize connection
         super
