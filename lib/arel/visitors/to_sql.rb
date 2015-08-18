@@ -48,16 +48,17 @@ module Arel
       # specialized for specific databases when necessary.
       #
 
-      WHERE    = ' WHERE '.freeze    # :nodoc:
-      SPACE    = ' '.freeze          # :nodoc:
-      COMMA    = ', '.freeze         # :nodoc:
-      GROUP_BY = ' GROUP BY '.freeze # :nodoc:
-      ORDER_BY = ' ORDER BY '.freeze # :nodoc:
-      WINDOW   = ' WINDOW '.freeze   # :nodoc:
-      AND      = ' AND '.freeze      # :nodoc:
-      AS       = ' AS '.freeze       # :nodoc:
+      WHERE     = ' WHERE '.freeze    # :nodoc:
+      SPACE     = ' '.freeze          # :nodoc:
+      COMMA     = ', '.freeze         # :nodoc:
+      GROUP_BY  = ' GROUP BY '.freeze # :nodoc:
+      ORDER_BY  = ' ORDER BY '.freeze # :nodoc:
+      WINDOW    = ' WINDOW '.freeze   # :nodoc:
+      AND       = ' AND '.freeze      # :nodoc:
+      AS        = ' AS '.freeze       # :nodoc:
+      UNBOUNDED = 'UNBOUNDED'.freeze  # :nodoc:
 
-      DISTINCT = 'DISTINCT '.freeze  # :nodoc:
+      DISTINCT  = 'DISTINCT '.freeze  # :nodoc:
 
       def initialize connection
         super
@@ -379,7 +380,7 @@ module Arel
         collector = if o.expr
                       visit o.expr, collector
                     else
-                      collector << "UNBOUNDED"
+                      collector << UNBOUNDED
                     end
 
         collector << " PRECEDING"
@@ -389,7 +390,7 @@ module Arel
         collector = if o.expr
                       visit o.expr, collector
                     else
-                      collector << "UNBOUNDED"
+                      collector << UNBOUNDED
                     end
 
         collector << " FOLLOWING"
