@@ -57,6 +57,7 @@ module Arel
       AND       = ' AND '.freeze      # :nodoc:
       AS        = ' AS '.freeze       # :nodoc:
       UNBOUNDED = 'UNBOUNDED'.freeze  # :nodoc:
+      ESCAPE    = ' ESCAPE '.freeze   # :nodoc:
 
       DISTINCT  = 'DISTINCT '.freeze  # :nodoc:
 
@@ -536,7 +537,7 @@ module Arel
         collector << " LIKE "
         collector = visit o.right, collector
         if o.escape
-          collector << ' ESCAPE '
+          collector << ESCAPE
           visit o.escape, collector
         else
           collector
@@ -548,7 +549,7 @@ module Arel
         collector << " NOT LIKE "
         collector = visit o.right, collector
         if o.escape
-          collector << ' ESCAPE '
+          collector << ESCAPE
           visit o.escape, collector
         else
           collector
