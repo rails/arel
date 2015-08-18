@@ -55,6 +55,7 @@ module Arel
       ORDER_BY = ' ORDER BY '.freeze # :nodoc:
       WINDOW   = ' WINDOW '.freeze   # :nodoc:
       AND      = ' AND '.freeze      # :nodoc:
+      AS       = ' AS '.freeze       # :nodoc:
 
       DISTINCT = 'DISTINCT '.freeze   # :nodoc:
 
@@ -140,7 +141,7 @@ module Arel
         collector << "EXISTS ("
         collector = visit(o.expressions, collector) << ")"
         if o.alias
-          collector << " AS "
+          collector << AS
           visit o.alias, collector
         else
           collector
@@ -330,7 +331,7 @@ module Arel
 
       def visit_Arel_Nodes_NamedWindow o, collector
         collector << quote_column_name(o.name)
-        collector << " AS "
+        collector << AS
         visit_Arel_Nodes_Window o, collector
       end
 
@@ -461,7 +462,7 @@ module Arel
         collector << DISTINCT if o.distinct
         collector = inject_join(o.expressions, collector, COMMA) << ")"
         if o.alias
-          collector << " AS "
+          collector << AS
           visit o.alias, collector
         else
           collector
@@ -698,7 +699,7 @@ module Arel
 
       def visit_Arel_Nodes_As o, collector
         collector = visit o.left, collector
-        collector << " AS "
+        collector << AS
         visit o.right, collector
       end
 
@@ -819,7 +820,7 @@ module Arel
         end
         collector = inject_join(o.expressions, collector, COMMA) << ")"
         if o.alias
-          collector << " AS "
+          collector << AS
           visit o.alias, collector
         else
           collector
