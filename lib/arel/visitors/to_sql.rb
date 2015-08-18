@@ -107,7 +107,7 @@ module Arel
         collector = visit o.relation, collector
         unless o.values.empty?
           collector << " SET "
-          collector = inject_join o.values, collector, ", "
+          collector = inject_join o.values, collector, COMMA
         end
 
         unless wheres.empty?
@@ -124,7 +124,7 @@ module Arel
         if o.columns.any?
           collector << " (#{o.columns.map { |x|
             quote_column_name x.name
-          }.join ', '})"
+          }.join COMMA})"
         end
 
         if o.values
@@ -193,7 +193,7 @@ module Arel
             collector << quote(value, attr && column_for(attr)).to_s
           end
           unless i == len
-            collector << ', '
+            collector << COMMA
           end
         }
 
@@ -300,12 +300,12 @@ module Arel
 
       def visit_Arel_Nodes_With o, collector
         collector << "WITH "
-        inject_join o.children, collector, ', '
+        inject_join o.children, collector, COMMA
       end
 
       def visit_Arel_Nodes_WithRecursive o, collector
         collector << "WITH RECURSIVE "
-        inject_join o.children, collector, ', '
+        inject_join o.children, collector, COMMA
       end
 
       def visit_Arel_Nodes_Union o, collector
@@ -339,13 +339,13 @@ module Arel
 
         if o.partitions.any?
           collector << "PARTITION BY "
-          collector = inject_join o.partitions, collector, ", "
+          collector = inject_join o.partitions, collector, COMMA
         end
 
         if o.orders.any?
           collector << ' ' if o.partitions.any?
           collector << "ORDER BY "
-          collector = inject_join o.orders, collector, ", "
+          collector = inject_join o.orders, collector, COMMA
         end
 
         if o.framing
@@ -459,7 +459,7 @@ module Arel
         collector << o.name
         collector << "("
         collector << "DISTINCT " if o.distinct
-        collector = inject_join(o.expressions, collector, ", ") << ")"
+        collector = inject_join(o.expressions, collector, COMMA) << ")"
         if o.alias
           collector << " AS "
           visit o.alias, collector
@@ -767,7 +767,7 @@ module Arel
       alias :visit_Arel_Nodes_Division       :visit_Arel_Nodes_InfixOperation
 
       def visit_Array o, collector
-        inject_join o, collector, ", "
+        inject_join o, collector, COMMA
       end
       alias :visit_Set :visit_Array
 
@@ -817,7 +817,7 @@ module Arel
         if o.distinct
           collector << "DISTINCT "
         end
-        collector = inject_join(o.expressions, collector, ", ") << ")"
+        collector = inject_join(o.expressions, collector, COMMA) << ")"
         if o.alias
           collector << " AS "
           visit o.alias, collector
