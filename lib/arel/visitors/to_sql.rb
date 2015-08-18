@@ -343,13 +343,13 @@ module Arel
         end
 
         if o.orders.any?
-          collector << ' ' if o.partitions.any?
+          collector << SPACE if o.partitions.any?
           collector << ORDER_BY
           collector = inject_join o.orders, collector, COMMA
         end
 
         if o.framing
-          collector << ' ' if o.partitions.any? or o.orders.any?
+          collector << SPACE if o.partitions.any? or o.orders.any?
           collector = visit o.framing, collector
         end
 
@@ -495,7 +495,7 @@ module Arel
 
       def visit_Arel_Nodes_TableAlias o, collector
         collector = visit o.relation, collector
-        collector << " "
+        collector << SPACE
         collector << quote_table_name(o.name)
       end
 
@@ -558,8 +558,8 @@ module Arel
           collector = visit o.left, collector
         end
         if o.right.any?
-          collector << " " if o.left
-          collector = inject_join o.right, collector, ' '
+          collector << SPACE if o.left
+          collector = inject_join o.right, collector, SPACE
         end
         collector
       end
@@ -586,7 +586,7 @@ module Arel
       def visit_Arel_Nodes_OuterJoin o, collector
         collector << "LEFT OUTER JOIN "
         collector = visit o.left, collector
-        collector << " "
+        collector << SPACE
         visit o.right, collector
       end
 
@@ -791,7 +791,7 @@ module Arel
 
       def maybe_visit thing, collector
         return collector unless thing
-        collector << " "
+        collector << SPACE
         visit thing, collector
       end
 
