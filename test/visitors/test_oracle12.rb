@@ -16,7 +16,7 @@ module Arel
         right = Nodes::SqlLiteral.new("SELECT * FROM users WHERE age > 20")
         sql = compile Nodes::Except.new([left, right])
         sql.must_be_like %{
-          ( SELECT * FROM users WHERE age > 10 MINUS SELECT * FROM users WHERE age > 20 )
+          ( SELECT * FROM users WHERE age > 10 ) MINUS ( SELECT * FROM users WHERE age > 20 )
         }
       end
 
