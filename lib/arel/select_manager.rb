@@ -6,11 +6,15 @@ module Arel
 
     STRING_OR_SYMBOL_CLASS = [Symbol, String]
 
-    def initialize table = nil
+    def initialize table = nil, cores = nil
       super()
-      @ast   = Nodes::SelectStatement.new
-      @ctx    = @ast.cores.last
-      from table
+      if cores
+        @ast = Nodes::SelectStatement.new cores
+      else
+        @ast = Nodes::SelectStatement.new
+      end
+      @ctx = @ast.cores.last
+      from table if table
     end
 
     def initialize_copy other
@@ -184,22 +188,15 @@ module Arel
     end
 
     def union operation, other = nil
-      if other
-        node_class = Nodes.const_get("Union#{operation.to_s.capitalize}")
-      else
-        other = operation
-        node_class = Nodes::Union
-      end
-
-      node_class.new self.ast, other.ast
+      set_agreggation :union, operation, other
     end
 
-    def intersect other
-      Nodes::Intersect.new ast, other.ast
+    def intersect operation, other = nil
+      set_agreggation :intersect, operation, other
     end
 
-    def except other
-      Nodes::Except.new ast, other.ast
+    def except operation, other = nil
+      set_agreggation :except, operation, other
     end
     alias :minus :except
 
@@ -217,10 +214,8 @@ module Arel
     def take limit
       if limit
         @ast.limit = Nodes::Limit.new(limit)
-        @ctx.top   = Nodes::Top.new(limit)
       else
         @ast.limit = nil
-        @ctx.top   = nil
       end
       self
     end
@@ -263,6 +258,21 @@ module Arel
       else
         create_and exprs
       end
+    end
+
+    def set_agreggation operator, variant, others = nil
+      if others
+        variant = '' if operator.to_s == :distinct.to_s
+        node_class = Nodes.const_get("#{operator.to_s.capitalize}#{variant.to_s.capitalize}")
+      else
+        others = variant
+        node_class = Nodes.const_get("#{operator.to_s.capitalize}")
+      end
+
+      others = [others] unless Array === others
+      set_node = node_class.new([self.ast] + others.map{|o| o.ast})
+
+      SelectManager.new nil, set_node
     end
   end
 end

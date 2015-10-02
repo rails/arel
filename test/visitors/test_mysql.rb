@@ -12,12 +12,12 @@ module Arel
       end
 
       it 'squashes parenthesis on multiple unions' do
-        subnode = Nodes::Union.new Arel.sql('left'), Arel.sql('right')
-        node    = Nodes::Union.new subnode, Arel.sql('topright')
+        subnode = Nodes::Union.new [Arel.sql('left'), Arel.sql('right')]
+        node    = Nodes::Union.new [subnode, Arel.sql('topright')]
         assert_equal 1, compile(node).scan('(').length
 
-        subnode = Nodes::Union.new Arel.sql('left'), Arel.sql('right')
-        node    = Nodes::Union.new Arel.sql('topleft'), subnode
+        subnode = Nodes::Union.new [Arel.sql('left'), Arel.sql('right')]
+        node    = Nodes::Union.new [Arel.sql('topleft'), subnode]
         assert_equal 1, compile(node).scan('(').length
       end
 

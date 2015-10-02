@@ -32,7 +32,7 @@ require 'arel/nodes/over'
 require 'arel/nodes/matches'
 
 # nary
-require 'arel/nodes/and'
+require 'arel/nodes/nary'
 
 # function
 # FIXME: Function + Alias can be rewritten as a Function and Alias node.

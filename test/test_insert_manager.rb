@@ -161,7 +161,7 @@ module Arel
         manager.columns << table[:id]
         manager.columns << table[:name]
         manager.to_sql.must_be_like %{
-          INSERT INTO "users" ("id", "name") (SELECT 1, "aaron")
+          INSERT INTO "users" ("id", "name") ( SELECT 1, "aaron" )
         }
       end
 

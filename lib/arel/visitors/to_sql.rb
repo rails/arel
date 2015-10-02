@@ -207,7 +207,7 @@ module Arel
         end
 
         collector = o.cores.inject(collector) { |c,x|
-          visit_Arel_Nodes_SelectCore(x, c)
+          visit(x, c)
         }
 
         unless o.orders.empty?
@@ -310,22 +310,32 @@ module Arel
 
       def visit_Arel_Nodes_Union o, collector
         collector << "( "
-        infix_value(o, collector, " UNION ") << " )"
+        inject_join(o.children, collector, " ) UNION ( ") << " )"
       end
 
       def visit_Arel_Nodes_UnionAll o, collector
         collector << "( "
-        infix_value(o, collector, " UNION ALL ") << " )"
+        inject_join(o.children, collector, " ) UNION ALL ( ") << " )"
       end
 
       def visit_Arel_Nodes_Intersect o, collector
         collector << "( "
-        infix_value(o, collector, " INTERSECT ") << " )"
+        inject_join(o.children, collector, " ) INTERSECT ( ") << " )"
+      end
+
+      def visit_Arel_Nodes_IntersectAll o, collector
+        collector << "( "
+        inject_join(o.children, collector, " ) INTERSECT ALL ( ") << " )"
       end
 
       def visit_Arel_Nodes_Except o, collector
         collector << "( "
-        infix_value(o, collector, " EXCEPT ") << " )"
+        inject_join(o.children, collector, " ) EXCEPT ( ") << " )"
+      end
+
+      def visit_Arel_Nodes_ExceptAll o, collector
+        collector << "( "
+        inject_join(o.children, collector, " ) EXCEPT ALL ( ") << " )"
       end
 
       def visit_Arel_Nodes_NamedWindow o, collector
@@ -421,11 +431,6 @@ module Arel
         visit o.expr, collector
       end
 
-      # FIXME: this does nothing on most databases, but does on MSSQL
-      def visit_Arel_Nodes_Top o, collector
-        collector
-      end
-
       def visit_Arel_Nodes_Lock o, collector
         visit o.expr, collector
       end
@@ -440,7 +445,7 @@ module Arel
       end
 
       def visit_Arel_SelectManager o, collector
-        collector << "(#{o.to_sql.rstrip})"
+        collector << "( #{o.to_sql.rstrip} )"
       end
 
       def visit_Arel_Nodes_Ascending o, collector
@@ -652,9 +657,7 @@ module Arel
       end
 
       def visit_Arel_Nodes_Or o, collector
-        collector = visit o.left, collector
-        collector << " OR "
-        visit o.right, collector
+        inject_join o.children, collector, " OR "
       end
 
       def visit_Arel_Nodes_Assignment o, collector

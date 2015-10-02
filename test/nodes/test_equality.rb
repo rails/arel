@@ -54,8 +54,8 @@ module Arel
           left  = attr.eq(10)
           right = attr.eq(11)
           node  = left.or right
-          node.expr.left.must_equal left
-          node.expr.right.must_equal right
+          node.expr.children[0].must_equal left
+          node.expr.children[1].must_equal right
         end
       end
 
@@ -65,8 +65,8 @@ module Arel
           left  = attr.eq(10)
           right = attr.eq(11)
           node  = left.and right
-          node.left.must_equal left
-          node.right.must_equal right
+          node.children[0].must_equal left
+          node.children[1].must_equal right
         end
       end
 

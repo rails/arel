@@ -32,7 +32,6 @@ module Arel
         Arel::Nodes::Ordering,
         Arel::Nodes::StringJoin,
         Arel::Nodes::UnqualifiedColumn,
-        Arel::Nodes::Top,
         Arel::Nodes::Limit,
       ].each do |klass|
         define_method("test_#{klass.name.gsub('::', '_')}") do
@@ -112,7 +111,6 @@ module Arel
         Arel::Nodes::Matches,
         Arel::Nodes::NotEqual,
         Arel::Nodes::NotIn,
-        Arel::Nodes::Or,
         Arel::Nodes::TableAlias,
         Arel::Nodes::Values,
         Arel::Nodes::As,
@@ -134,12 +132,13 @@ module Arel
 
       # N-ary
       [
+        Arel::Nodes::Or,
         Arel::Nodes::And,
       ].each do |klass|
         define_method("test_#{klass.name.gsub('::', '_')}") do
-          binary = klass.new([:a, :b, :c])
-          @visitor.accept binary
-          assert_equal [:a, :b, :c, binary], @collector.calls
+          nary = klass.new([:a, :b, :c])
+          @visitor.accept nary
+          assert_equal [:a, :b, :c, nary], @collector.calls
         end
       end
 
@@ -165,21 +164,21 @@ module Arel
       end
 
       def test_array
-        node = Nodes::Or.new(:a, :b)
+        node = Nodes::Or.new [:a, :b]
         list = [node]
         @visitor.accept list
         assert_equal [:a, :b, node, list], @collector.calls
       end
 
       def test_set
-        node = Nodes::Or.new(:a, :b)
+        node = Nodes::Or.new [:a, :b]
         set  = Set.new([node])
         @visitor.accept set
         assert_equal [:a, :b, node, set], @collector.calls
       end
 
       def test_hash
-        node = Nodes::Or.new(:a, :b)
+        node = Nodes::Or.new [:a, :b]
         hash = { node => node }
         @visitor.accept hash
         assert_equal [:a, :b, node, :a, :b, node, hash], @collector.calls

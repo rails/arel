@@ -75,7 +75,6 @@ module Arel
       alias :visit_Arel_Nodes_Not               :unary
       alias :visit_Arel_Nodes_Offset            :unary
       alias :visit_Arel_Nodes_On                :unary
-      alias :visit_Arel_Nodes_Top               :unary
       alias :visit_Arel_Nodes_UnqualifiedColumn :unary
       alias :visit_Arel_Nodes_Preceding         :unary
       alias :visit_Arel_Nodes_Following         :unary
@@ -168,6 +167,7 @@ module Arel
         end
       end
       alias :visit_Arel_Nodes_And :nary
+      alias :visit_Arel_Nodes_Or  :nary
 
       def binary o
         visit_edge o, "left"
@@ -187,7 +187,6 @@ module Arel
       alias :visit_Arel_Nodes_Matches            :binary
       alias :visit_Arel_Nodes_NotEqual           :binary
       alias :visit_Arel_Nodes_NotIn              :binary
-      alias :visit_Arel_Nodes_Or                 :binary
       alias :visit_Arel_Nodes_Over               :binary
 
       def visit_String o

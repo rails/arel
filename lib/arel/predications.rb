@@ -195,7 +195,7 @@ Passing a range to `#not_in` is deprecated. Call `#not_between`, instead.
     def grouping_any method_id, others, *extras
       nodes = others.map {|expr| send(method_id, expr, *extras)}
       Nodes::Grouping.new nodes.inject { |memo,node|
-        Nodes::Or.new(memo, node)
+        Nodes::Or.new [memo, node]
       }
     end
 

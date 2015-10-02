@@ -83,7 +83,7 @@ module Arel
           mgr = users.project(Arel.star).where(users[:karma].gt(avg))
 
           mgr.to_sql.must_be_like %{
-            SELECT * FROM "users" WHERE "users"."karma" > (SELECT AVG("users"."karma") FROM "users")
+            SELECT * FROM "users" WHERE "users"."karma" > ( SELECT AVG("users"."karma") FROM "users" )
           }
         end
 
@@ -747,7 +747,7 @@ module Arel
           attribute = Attribute.new nil, nil
           node = attribute.not_between(1..3)
 
-          node.must_equal Nodes::Grouping.new(Nodes::Or.new(
+          node.must_equal Nodes::Grouping.new(Nodes::Or.new([
             Nodes::LessThan.new(
               attribute,
               Nodes::Casted.new(1, attribute)
@@ -756,7 +756,7 @@ module Arel
               attribute,
               Nodes::Casted.new(3, attribute)
             )
-          ))
+          ]))
         end
 
         it 'can be constructed with a range starting from -Infinity' do
@@ -800,7 +800,7 @@ module Arel
           attribute = Attribute.new nil, nil
           node = attribute.not_between(0...3)
 
-          node.must_equal Nodes::Grouping.new(Nodes::Or.new(
+          node.must_equal Nodes::Grouping.new(Nodes::Or.new([
             Nodes::LessThan.new(
               attribute,
               Nodes::Casted.new(0, attribute)
@@ -809,7 +809,7 @@ module Arel
               attribute,
               Nodes::Casted.new(3, attribute)
             )
-          ))
+          ]))
         end
       end
 
