@@ -400,37 +400,37 @@ module Arel
       end
 
       def visit_Arel_Nodes_Between o, a
-        a = o.left if Arel::Attributes::Attribute === o.left
+        a = fetch_attribute o.left, a
         "#{visit o.left, a} BETWEEN #{visit o.right, a}"
       end
 
       def visit_Arel_Nodes_GreaterThanOrEqual o, a
-        a = o.left if Arel::Attributes::Attribute === o.left
+        a = fetch_attribute o.left, a
         "#{visit o.left, a} >= #{visit o.right, a}"
       end
 
       def visit_Arel_Nodes_GreaterThan o, a
-        a = o.left if Arel::Attributes::Attribute === o.left
+        a = fetch_attribute o.left, a
         "#{visit o.left, a} > #{visit o.right, a}"
       end
 
       def visit_Arel_Nodes_LessThanOrEqual o, a
-        a = o.left if Arel::Attributes::Attribute === o.left
+        a = fetch_attribute o.left, a
         "#{visit o.left, a} <= #{visit o.right, a}"
       end
 
       def visit_Arel_Nodes_LessThan o, a
-        a = o.left if Arel::Attributes::Attribute === o.left
+        a = fetch_attribute o.left, a
         "#{visit o.left, a} < #{visit o.right, a}"
       end
 
       def visit_Arel_Nodes_Matches o, a
-        a = o.left if Arel::Attributes::Attribute === o.left
+        a = fetch_attribute o.left, a
         "#{visit o.left, a} LIKE #{visit o.right, a}"
       end
 
       def visit_Arel_Nodes_DoesNotMatch o, a
-        a = o.left if Arel::Attributes::Attribute === o.left
+        a = fetch_attribute o.left, a
         "#{visit o.left, a} NOT LIKE #{visit o.right, a}"
       end
 
@@ -478,7 +478,7 @@ module Arel
         if Array === o.right && o.right.empty?
           '1=0'
         else
-          a = o.left if Arel::Attributes::Attribute === o.left
+          a = fetch_attribute o.left, a
           "#{visit o.left, a} IN (#{visit o.right, a})"
         end
       end
@@ -487,7 +487,7 @@ module Arel
         if Array === o.right && o.right.empty?
           '1=1'
         else
-          a = o.left if Arel::Attributes::Attribute === o.left
+          a = fetch_attribute o.left, a
           "#{visit o.left, a} NOT IN (#{visit o.right, a})"
         end
       end
@@ -508,7 +508,7 @@ module Arel
       def visit_Arel_Nodes_Equality o, a
         right = o.right
 
-        a = o.left if Arel::Attributes::Attribute === o.left
+        a = fetch_attribute o.left, a
         if right.nil?
           "#{visit o.left, a} IS NULL"
         else
@@ -519,7 +519,7 @@ module Arel
       def visit_Arel_Nodes_NotEqual o, a
         right = o.right
 
-        a = o.left if Arel::Attributes::Attribute === o.left
+        a = fetch_attribute o.left, a
         if right.nil?
           "#{visit o.left, a} IS NOT NULL"
         else
@@ -598,6 +598,19 @@ module Arel
 
       def quote_column_name name
         @quoted_columns[name] ||= Arel::Nodes::SqlLiteral === name ? name : @connection.quote_column_name(name)
+      end
+
+      private
+
+      def fetch_attribute object, attribute
+        case object
+        when Arel::Attributes::Attribute
+          object
+        when Arel::Nodes::NamedFunction
+          nil
+        else
+          attribute
+        end
       end
     end
   end

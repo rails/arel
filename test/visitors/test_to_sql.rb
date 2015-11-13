@@ -48,6 +48,14 @@ module Arel
         sql.must_be_like %{ omg(*) = 2 }
       end
 
+      it 'should handle named functions within subqueries' do
+        users = Table.new(:users)
+        products = Table.new(:products)
+        node = products.project(products[:id]).where(products[:id].in(users.project(users[:id]).where(users[:name].lower.eq('foo'))))
+        sql = @visitor.accept(node)
+        sql.must_match %r{LOWER\(\"users\".\"name\"\) = 'foo'}
+      end
+
       it 'should visit built-in functions' do
         function = Nodes::Count.new([Arel.star])
         assert_equal 'COUNT(*)', @visitor.accept(function)
