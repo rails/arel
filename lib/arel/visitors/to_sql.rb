@@ -48,19 +48,22 @@ module Arel
       # specialized for specific databases when necessary.
       #
 
-      WHERE    = ' WHERE '    # :nodoc:
-      SPACE    = ' '          # :nodoc:
-      COMMA    = ', '         # :nodoc:
-      GROUP_BY = ' GROUP BY ' # :nodoc:
-      ORDER_BY = ' ORDER BY ' # :nodoc:
-      WINDOW   = ' WINDOW '   # :nodoc:
-      AND      = ' AND '      # :nodoc:
+      WHERE     = ' WHERE '.freeze    # :nodoc:
+      SPACE     = ' '.freeze          # :nodoc:
+      COMMA     = ', '.freeze         # :nodoc:
+      GROUP_BY  = ' GROUP BY '.freeze # :nodoc:
+      ORDER_BY  = ' ORDER BY '.freeze # :nodoc:
+      WINDOW    = ' WINDOW '.freeze   # :nodoc:
+      AND       = ' AND '.freeze      # :nodoc:
+      AS        = ' AS '.freeze       # :nodoc:
+      UNBOUNDED = 'UNBOUNDED'.freeze  # :nodoc:
+      ESCAPE    = ' ESCAPE '.freeze   # :nodoc:
 
-      DISTINCT = 'DISTINCT'   # :nodoc:
+      DISTINCT  = 'DISTINCT '.freeze  # :nodoc:
 
       def initialize connection
-        super()
-        @connection     = connection
+        super
+        @connection = connection
       end
 
       def compile node, &block
@@ -77,7 +80,7 @@ module Arel
         collector << 'DELETE FROM '
         collector = visit o.relation, collector
         if o.wheres.any?
-          collector << ' WHERE '
+          collector << WHERE
           collector = inject_join o.wheres, collector, AND
         end
 
@@ -107,12 +110,12 @@ module Arel
         collector = visit o.relation, collector
         unless o.values.empty?
           collector << " SET "
-          collector = inject_join o.values, collector, ", "
+          collector = inject_join o.values, collector, COMMA
         end
 
         unless wheres.empty?
-          collector << " WHERE "
-          collector = inject_join wheres, collector, " AND "
+          collector << WHERE
+          collector = inject_join wheres, collector, AND
         end
 
         collector
@@ -124,7 +127,7 @@ module Arel
         if o.columns.any?
           collector << " (#{o.columns.map { |x|
             quote_column_name x.name
-          }.join ', '})"
+          }.join COMMA})"
         end
 
         if o.values
@@ -140,7 +143,7 @@ module Arel
         collector << "EXISTS ("
         collector = visit(o.expressions, collector) << ")"
         if o.alias
-          collector << " AS "
+          collector << AS
           visit o.alias, collector
         else
           collector
@@ -193,7 +196,7 @@ module Arel
             collector << quote(value, attr && column_for(attr)).to_s
           end
           unless i == len
-            collector << ', '
+            collector << COMMA
           end
         }
 
@@ -300,12 +303,12 @@ module Arel
 
       def visit_Arel_Nodes_With o, collector
         collector << "WITH "
-        inject_join o.children, collector, ', '
+        inject_join o.children, collector, COMMA
       end
 
       def visit_Arel_Nodes_WithRecursive o, collector
         collector << "WITH RECURSIVE "
-        inject_join o.children, collector, ', '
+        inject_join o.children, collector, COMMA
       end
 
       def visit_Arel_Nodes_Union o, collector
@@ -330,7 +333,7 @@ module Arel
 
       def visit_Arel_Nodes_NamedWindow o, collector
         collector << quote_column_name(o.name)
-        collector << " AS "
+        collector << AS
         visit_Arel_Nodes_Window o, collector
       end
 
@@ -339,17 +342,17 @@ module Arel
 
         if o.partitions.any?
           collector << "PARTITION BY "
-          collector = inject_join o.partitions, collector, ", "
+          collector = inject_join o.partitions, collector, COMMA
         end
 
         if o.orders.any?
-          collector << ' ' if o.partitions.any?
-          collector << "ORDER BY "
-          collector = inject_join o.orders, collector, ", "
+          collector << SPACE if o.partitions.any?
+          collector << ORDER_BY
+          collector = inject_join o.orders, collector, COMMA
         end
 
         if o.framing
-          collector << ' ' if o.partitions.any? or o.orders.any?
+          collector << SPACE if o.partitions.any? or o.orders.any?
           collector = visit o.framing, collector
         end
 
@@ -378,7 +381,7 @@ module Arel
         collector = if o.expr
                       visit o.expr, collector
                     else
-                      collector << "UNBOUNDED"
+                      collector << UNBOUNDED
                     end
 
         collector << " PRECEDING"
@@ -388,7 +391,7 @@ module Arel
         collector = if o.expr
                       visit o.expr, collector
                     else
-                      collector << "UNBOUNDED"
+                      collector << UNBOUNDED
                     end
 
         collector << " FOLLOWING"
@@ -458,10 +461,10 @@ module Arel
       def visit_Arel_Nodes_NamedFunction o, collector
         collector << o.name
         collector << "("
-        collector << "DISTINCT " if o.distinct
-        collector = inject_join(o.expressions, collector, ", ") << ")"
+        collector << DISTINCT if o.distinct
+        collector = inject_join(o.expressions, collector, COMMA) << ")"
         if o.alias
-          collector << " AS "
+          collector << AS
           visit o.alias, collector
         else
           collector
@@ -495,7 +498,7 @@ module Arel
 
       def visit_Arel_Nodes_TableAlias o, collector
         collector = visit o.relation, collector
-        collector << " "
+        collector << SPACE
         collector << quote_table_name(o.name)
       end
 
@@ -534,7 +537,7 @@ module Arel
         collector << " LIKE "
         collector = visit o.right, collector
         if o.escape
-          collector << ' ESCAPE '
+          collector << ESCAPE
           visit o.escape, collector
         else
           collector
@@ -546,7 +549,7 @@ module Arel
         collector << " NOT LIKE "
         collector = visit o.right, collector
         if o.escape
-          collector << ' ESCAPE '
+          collector << ESCAPE
           visit o.escape, collector
         else
           collector
@@ -558,8 +561,8 @@ module Arel
           collector = visit o.left, collector
         end
         if o.right.any?
-          collector << " " if o.left
-          collector = inject_join o.right, collector, ' '
+          collector << SPACE if o.left
+          collector = inject_join o.right, collector, SPACE
         end
         collector
       end
@@ -586,7 +589,7 @@ module Arel
       def visit_Arel_Nodes_OuterJoin o, collector
         collector << "LEFT OUTER JOIN "
         collector = visit o.left, collector
-        collector << " "
+        collector << SPACE
         visit o.right, collector
       end
 
@@ -648,7 +651,7 @@ module Arel
       end
 
       def visit_Arel_Nodes_And o, collector
-        inject_join o.children, collector, " AND "
+        inject_join o.children, collector, AND
       end
 
       def visit_Arel_Nodes_Or o, collector
@@ -698,7 +701,7 @@ module Arel
 
       def visit_Arel_Nodes_As o, collector
         collector = visit o.left, collector
-        collector << " AS "
+        collector << AS
         visit o.right, collector
       end
 
@@ -767,7 +770,7 @@ module Arel
       alias :visit_Arel_Nodes_Division       :visit_Arel_Nodes_InfixOperation
 
       def visit_Array o, collector
-        inject_join o, collector, ", "
+        inject_join o, collector, COMMA
       end
       alias :visit_Set :visit_Array
 
@@ -791,7 +794,7 @@ module Arel
 
       def maybe_visit thing, collector
         return collector unless thing
-        collector << " "
+        collector << SPACE
         visit thing, collector
       end
 
@@ -815,11 +818,11 @@ module Arel
       def aggregate name, o, collector
         collector << "#{name}("
         if o.distinct
-          collector << "DISTINCT "
+          collector << DISTINCT
         end
-        collector = inject_join(o.expressions, collector, ", ") << ")"
+        collector = inject_join(o.expressions, collector, COMMA) << ")"
         if o.alias
-          collector << " AS "
+          collector << AS
           visit o.alias, collector
         else
           collector
