@@ -663,6 +663,16 @@ module Arel
           ])
         end
 
+        it 'can be constructed with a range ending at Date::Infinity' do
+          attribute = Attribute.new nil, nil
+          node = attribute.between(Date.new..Date::Infinity.new)
+
+          node.must_equal Nodes::GreaterThanOrEqual.new(
+            attribute,
+            Nodes::Casted.new(Date.new, attribute)
+          )
+        end
+
         def quoted_range(begin_val, end_val, exclude)
           OpenStruct.new(
             begin: Nodes::Quoted.new(begin_val),

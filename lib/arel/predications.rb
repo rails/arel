@@ -37,6 +37,8 @@ module Arel
         gteq(other.begin)
       elsif other.exclude_end?
         gteq(other.begin).and(lt(other.end))
+      elsif equals_quoted?(other.end, Date::Infinity.new)
+        gteq(other.begin)
       else
         left = quoted_node(other.begin)
         right = quoted_node(other.end)
