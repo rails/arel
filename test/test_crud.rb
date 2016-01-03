@@ -55,7 +55,7 @@ module Arel
         table = Table.new :users
         fc = FakeCrudder.new
         fc.from table
-        stmt = fc.compile_delete
+        stmt = fc.compile_delete Arel::Attributes::Attribute.new(table, 'id')
         assert_instance_of Arel::DeleteManager, stmt
       end
     end

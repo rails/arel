@@ -6,6 +6,19 @@ module Arel
       @ctx = @ast
     end
 
+    def key= key
+      @ast.key = Nodes.build_quoted(key)
+    end
+
+    def key
+      @ast.key
+    end
+
+    def order *expr
+      @ast.orders = expr
+      self
+    end
+
     def from relation
       @ast.relation = relation
       self

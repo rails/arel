@@ -116,7 +116,6 @@ module Arel
         Arel::Nodes::TableAlias,
         Arel::Nodes::Values,
         Arel::Nodes::As,
-        Arel::Nodes::DeleteStatement,
         Arel::Nodes::JoinSource,
       ].each do |klass|
         define_method("test_#{klass.name.gsub('::', '_')}") do
@@ -183,6 +182,18 @@ module Arel
         hash = { node => node }
         @visitor.accept hash
         assert_equal [:a, :b, node, :a, :b, node, hash], @collector.calls
+      end
+
+      def test_delete_statement
+        stmt = Nodes::DeleteStatement.new
+        stmt.relation = :a
+        stmt.wheres << :c
+        stmt.orders << :d
+        stmt.limit = :e
+
+        @visitor.accept stmt
+        assert_equal [:a, :c, stmt.wheres, :d, stmt.orders,
+                      :e, stmt], @collector.calls
       end
 
       def test_update_statement

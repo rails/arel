@@ -182,6 +182,21 @@ module Arel
           }
         end
       end
+
+      it 'should serialize multi-table DELETE' do
+        stmt = Nodes::DeleteStatement.new
+        stmt.relation = Nodes::JoinSource.new(Arel.sql('table'), [Arel.sql('table2'), Arel.sql('table3')])
+        stmt.wheres << Arel.sql('id IS NOT NULL')
+        compile(stmt).must_be_like "DELETE FROM table USING table2, table3 WHERE id IS NOT NULL"
+      end
+
+      it 'should serialize multi-table UPDATE' do
+        stmt = Nodes::UpdateStatement.new
+        stmt.relation = Nodes::JoinSource.new(Arel.sql('table'), [Arel.sql('table2'), Arel.sql('table3')])
+        stmt.wheres << Arel.sql('id IS NOT NULL')
+        stmt.values << Arel.sql('id=id')
+        compile(stmt).must_be_like "UPDATE table SET id=id FROM table2, table3 WHERE id IS NOT NULL"
+      end
     end
   end
 end
