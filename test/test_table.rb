@@ -179,6 +179,16 @@ module Arel
       @relation.table_name.must_equal 'users'
     end
 
+    describe 'star' do
+      it 'returns table-limited star' do
+        manager = @relation.project(@relation.star)
+        manager.to_sql.must_be_like %{
+          SELECT "users".*
+          FROM "users"
+        }
+      end
+    end
+
     describe '[]' do
       describe 'when given a Symbol' do
         it "manufactures an attribute if the symbol names an attribute within the relation" do

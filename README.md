@@ -114,6 +114,18 @@ users.join(photos, Arel::Nodes::OuterJoin).on(users[:id].eq(photos[:user_id]))
 # => SELECT FROM users LEFT OUTER JOIN photos ON users.id = photos.user_id
 ```
 
+Star projects all columns from a table:
+
+```ruby
+users
+  .join(photos, Arel::Nodes::OuterJoin).on(users[:id].eq(photos[:user_id]))
+  .where(photos[:published].eq(true))
+  .project(users.star)
+# => SELECT "users".*
+#    FROM users LEFT OUTER JOIN photos ON users.id = photos.user_id
+#    WHERE photos.published = true
+```
+
 What are called `LIMIT` and `OFFSET` in SQL are called `take` and `skip` in Arel:
 
 ```ruby
