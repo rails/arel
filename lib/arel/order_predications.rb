@@ -1,12 +1,12 @@
 module Arel
   module OrderPredications
 
-    def asc
-      Nodes::Ascending.new self
+    def asc(*args)
+      Nodes::Ascending.new self, *args
     end
 
-    def desc
-      Nodes::Descending.new self
+    def desc(*args)
+      Nodes::Descending.new self, *args
     end
 
   end

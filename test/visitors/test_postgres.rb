@@ -182,6 +182,12 @@ module Arel
           }
         end
       end
+
+      it 'should support NULLS FIRST/LAST' do
+        compile(@attr.asc).must_be_like %{ "users"."id" ASC }
+        compile(@attr.asc(nulls: :first)).must_be_like %{ "users"."id" ASC NULLS FIRST }
+        compile(@attr.asc(nulls: :last)).must_be_like %{ "users"."id" ASC NULLS LAST }
+      end
     end
   end
 end

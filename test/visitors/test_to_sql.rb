@@ -373,6 +373,18 @@ module Arel
             "users"."id" DESC
           }
         end
+
+        it 'should support NULLS FIRST' do
+          node = @attr.asc(nulls: :first)
+          compile(node).
+            must_match /CASE WHEN "users"."id" IS NULL THEN 0 ELSE 1 END ASC, "users"."id" ASC\Z/
+        end
+
+        it 'should support NULLS LAST' do
+          node = @attr.desc(nulls: :last)
+          compile(node).must_match /CASE WHEN "users"."id" IS NULL THEN 0 ELSE 1 END DESC, "users"."id" DESC\Z/
+        end
+
       end
 
       describe "Nodes::In" do

@@ -27,7 +27,6 @@ module Arel
         sql = compile(stmt)
         sql.must_be_like "UPDATE \"users\" WHERE \"users\".\"id\" IN (SELECT \"users\".\"id\" FROM \"users\" FETCH FIRST 1 ROWS ONLY)"
       end
-
     end
   end
 end

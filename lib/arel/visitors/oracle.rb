@@ -115,6 +115,12 @@ module Arel
         o
       end
 
+      def visit_ordering_expr(o, collector, direction)
+        collector = visit(o.expr, collector) << ' ' << direction
+        collector << " NULLS #{o.nulls.to_s.upcase}" if o.nulls
+        collector
+      end
+
       # Split string by commas but count opening and closing brackets
       # and ignore commas inside brackets.
       def split_order_string(string)
