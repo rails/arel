@@ -17,6 +17,8 @@ module Arel
         visit o.expr
       end
       alias :visit_Arel_Nodes_Group             :unary
+      alias :visit_Arel_Nodes_Cube              :unary
+      alias :visit_Arel_Nodes_CubeDim           :unary
       alias :visit_Arel_Nodes_Grouping          :unary
       alias :visit_Arel_Nodes_Having            :unary
       alias :visit_Arel_Nodes_Limit             :unary

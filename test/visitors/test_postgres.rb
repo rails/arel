@@ -127,6 +127,32 @@ module Arel
           }
         end
       end
+
+      describe "Nodes::Cube & Nodes::CubeDim" do
+        it "should know how to visit with array arguments" do
+          node = Arel::Nodes::Cube.new([@table[:name], @table[:bool]])
+          compile(node).must_be_like %{
+            CUBE( "users"."name", "users"."bool" )
+          }
+        end
+
+        it "should know how to visit with CubeDimension Argument" do
+          dimensions = Arel::Nodes::CubeDim.new([@table[:name], @table[:bool]])
+          node = Arel::Nodes::Cube.new(dimensions)
+          compile(node).must_be_like %{
+            CUBE( "users"."name", "users"."bool" )
+          }
+        end
+
+        it "should know how to generate paranthesis when supplied with many Dimensions" do
+          dim1 = Arel::Nodes::CubeDim.new(@table[:name])
+          dim2 = Arel::Nodes::CubeDim.new([@table[:bool], @table[:created_at]])
+          node = Arel::Nodes::Cube.new([dim1, dim2])
+          compile(node).must_be_like %{
+            CUBE( ( "users"."name" ), ( "users"."bool", "users"."created_at" ) )
+          }
+        end
+      end
     end
   end
 end

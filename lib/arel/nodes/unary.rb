@@ -23,6 +23,8 @@ module Arel
     %w{
       Bin
       Group
+      Cube
+      CubeDim
       Having
       Limit
       Not

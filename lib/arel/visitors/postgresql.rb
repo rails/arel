@@ -1,7 +1,25 @@
 module Arel
   module Visitors
     class PostgreSQL < Arel::Visitors::ToSql
+      CUBE = 'CUBE'
+
       private
+
+      def visit_Arel_Nodes_CubeDim o, collector
+        collector << "( "
+        visit(o.expr, collector) << " )"
+      end
+
+      def visit_Arel_Nodes_Cube o, collector
+        collector << CUBE
+        if o.expr.is_a?(Array)
+          collector << "( "
+          visit(o.expr, collector)
+          collector << " )"
+        else
+          visit(o.expr, collector)
+        end
+      end
 
       def visit_Arel_Nodes_Matches o, collector
         infix_value o, collector, ' ILIKE '
