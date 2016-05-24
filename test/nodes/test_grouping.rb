@@ -19,6 +19,16 @@ module Arel
           assert_equal 2, array.uniq.size
         end
       end
+
+      it 'accepts sorting' do
+        grouping = Grouping.new(Nodes.build_quoted('foo'))
+        grouping.asc.to_sql.must_be_like %q{('foo') ASC}
+      end
+
+      it 'accepts aliases' do
+        grouping = Grouping.new(Nodes.build_quoted('foo'))
+        grouping.as("bar").to_sql.must_be_like %q{('foo') AS bar}
+      end
     end
   end
 end
