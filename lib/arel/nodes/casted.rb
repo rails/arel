@@ -11,7 +11,7 @@ module Arel
       def nil?; @val.nil?; end
 
       def hash
-         [@class, @val, @attribute].hash
+         [@val, @attribute].hash
       end
 
       def eql? other
