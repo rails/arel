@@ -304,6 +304,11 @@ module Arel
         infix_value(o, collector, " UNION ALL ") << " )"
       end
 
+      def visit_Arel_Nodes_UnionDistinct o, collector
+        collector << "( "
+        infix_value(o, collector, " UNION DISTINCT ") << " )"
+      end
+
       def visit_Arel_Nodes_Intersect o, collector
         collector << "( "
         infix_value(o, collector, " INTERSECT ") << " )"

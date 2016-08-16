@@ -41,6 +41,7 @@ module Arel
       Or
       Union
       UnionAll
+      UnionDistinct
       Intersect
       Except
     }.each do |name|

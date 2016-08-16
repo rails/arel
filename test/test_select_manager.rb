@@ -273,6 +273,13 @@ module Arel
         }
       end
 
+      it 'should union distinct' do
+        node = @m1.union :distinct, @m2
+
+        node.to_sql.must_be_like %{
+          ( SELECT * FROM "users"  WHERE "users"."age" < 18 UNION DISTINCT SELECT * FROM "users"  WHERE "users"."age" > 99 )
+        }
+      end
     end
 
     describe 'intersect' do
