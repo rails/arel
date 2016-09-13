@@ -20,6 +20,10 @@ module Arel
       def able_to_type_cast?
         relation.respond_to?(:able_to_type_cast?) && relation.able_to_type_cast?
       end
+
+      def clone
+        TableAlias.new(left, right)
+      end
     end
   end
 end
