@@ -997,6 +997,14 @@ module Arel
         condition.to_sql.must_equal %("foo"."id" = 1 AND "foo"."other_id" = '2')
       end
 
+      it 'does not attempt to type cast SqlLiteral' do
+        table = Table.new(:foo, type_caster: Object.new)
+        sql_literal = Arel::Nodes::SqlLiteral.new('bar')
+
+        condition = table["id"].eq(sql_literal)
+        condition.to_sql.must_equal %("foo"."id" = bar)
+      end
+
       it 'falls back to using the connection adapter for type casting' do
         table = Table.new(:users)
         condition = table["id"].eq("1")
