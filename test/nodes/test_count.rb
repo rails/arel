@@ -30,4 +30,13 @@ describe Arel::Nodes::Count do
       assert_equal 2, array.uniq.size
     end
   end
+
+  describe 'math' do
+    it 'should be able to use math operators' do
+      table = Arel::Table.new :users
+      (table[:id].count / 2).to_sql.must_be_like %{
+        COUNT("users"."id") / 2
+      }
+    end
+  end
 end
