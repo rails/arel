@@ -218,6 +218,23 @@ module Arel
         @visitor.accept(test).must_be_like %{ "users"."bool" = 't' }
       end
 
+      it "uses columns_hash of engine" do
+        table = Class.new(Table) {
+          def engine
+            Class.new {
+              def columns_hash
+                { 'active' => FakeRecord::Column.new('active', :integer) }
+              end
+            }.new
+          end
+        }.new(:users)
+
+        node = Nodes::NotEqual.new(table[:active], "1")
+        @visitor.accept(node).must_be_like %{
+          "users"."active" != 1
+        }
+      end
+
       describe "Nodes::Matches" do
         it "should know how to visit" do
           node = @table[:name].matches('foo%')
