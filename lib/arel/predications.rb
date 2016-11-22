@@ -25,15 +25,17 @@ module Arel
     end
 
     def between other
-      if equals_quoted?(other.begin, -Float::INFINITY)
-        if equals_quoted?(other.end, Float::INFINITY)
+      start_value = quoted_value(other.begin)
+      end_value = quoted_value(other.end)
+      if is_infinite?(start_value) && is_negative?(start_value)
+        if is_infinite?(end_value) && is_positive?(end_value)
           not_in([])
         elsif other.exclude_end?
           lt(other.end)
         else
           lteq(other.end)
         end
-      elsif equals_quoted?(other.end, Float::INFINITY)
+      elsif is_infinite?(end_value) && is_positive?(end_value)
         gteq(other.begin)
       elsif other.exclude_end?
         gteq(other.begin).and(lt(other.end))
@@ -71,15 +73,18 @@ Passing a range to `#in` is deprecated. Call `#between`, instead.
     end
 
     def not_between other
-      if equals_quoted?(other.begin, -Float::INFINITY)
-        if equals_quoted?(other.end, Float::INFINITY)
+      start_value = quoted_value(other.begin)
+      end_value = quoted_value(other.end)
+
+      if is_infinite?(start_value) && is_negative?(start_value)
+        if is_infinite?(end_value) && is_positive?(end_value)
           self.in([])
         elsif other.exclude_end?
           gteq(other.end)
         else
           gt(other.end)
         end
-      elsif equals_quoted?(other.end, Float::INFINITY)
+      elsif is_infinite?(end_value) && is_positive?(end_value)
         lt(other.begin)
       else
         left = lt(other.begin)
@@ -228,12 +233,20 @@ Passing a range to `#not_in` is deprecated. Call `#not_between`, instead.
       others.map { |v| quoted_node(v) }
     end
 
-    def equals_quoted?(maybe_quoted, value)
-      if maybe_quoted.is_a?(Nodes::Quoted)
-        maybe_quoted.val == value
-      else
-        maybe_quoted == value
-      end
+    def is_positive?(value)
+      value.respond_to?(:positive?) && value.positive?
+    end
+
+    def is_negative?(value)
+      value.respond_to?(:negative?) && value.negative?
+    end
+
+    def is_infinite?(value)
+      value.respond_to?(:infinite?) && value.infinite?
+    end
+
+    def quoted_value(maybe_quoted)
+      maybe_quoted.is_a?(Nodes::Quoted) ?  maybe_quoted.val : maybe_quoted
     end
   end
 end
