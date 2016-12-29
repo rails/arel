@@ -96,6 +96,7 @@ module Arel
     alias :== :eql?
 
     def type_cast_for_database(attribute_name, value)
+      return value if value.is_a? Arel::Nodes::SqlLiteral
       type_caster.type_cast_for_database(attribute_name, value)
     end
 
