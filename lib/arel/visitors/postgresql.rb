@@ -80,6 +80,10 @@ module Arel
           visit o.expr, collector
         end
       end
+
+      def visit_IPAddr o, a
+        "'#{o.to_s}/#{o.instance_variable_get(:@mask_addr).to_s(2).count('1')}'"
+      end
     end
   end
 end
