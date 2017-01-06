@@ -1,6 +1,8 @@
 module Arel
   module Visitors
     class Visitor
+      NO_METHOD_MUTEX = ::Mutex.new
+
       def initialize
         @dispatch = get_dispatch_cache
       end
@@ -28,13 +30,21 @@ module Arel
       def visit object
         send dispatch[object.class], object
       rescue NoMethodError => e
-        raise e if respond_to?(dispatch[object.class], true)
         superklass = object.class.ancestors.find { |klass|
           respond_to?(dispatch[klass], true)
         }
+
         raise(TypeError, "Cannot visit #{object.class}") unless superklass
-        dispatch[object.class] = dispatch[superklass]
-        retry
+
+        NO_METHOD_MUTEX.synchronize do
+          dispatch[object.class] = dispatch[superklass] unless respond_to?(dispatch[object.class], true)
+        end
+
+        if respond_to?(dispatch[object.class], true)
+          retry
+        else
+          raise e
+        end
       end
     end
   end
