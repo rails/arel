@@ -41,7 +41,11 @@ module Arel
         end
 
         if respond_to?(dispatch[object.class], true)
-          retry
+          begin
+            send dispatch[object.class], object
+          rescue NoMethodError => e2
+            raise e2
+          end
         else
           raise e
         end
