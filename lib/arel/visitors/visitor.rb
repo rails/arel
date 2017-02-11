@@ -1,7 +1,6 @@
 module Arel
   module Visitors
     class Visitor
-      NO_METHOD_MUTEX = ::Mutex.new
 
       def initialize
         @dispatch = get_dispatch_cache
@@ -38,11 +37,7 @@ module Arel
           respond_to?(dispatch[klass], true)
         }
         raise(TypeError, "Cannot visit #{object.class}") unless superklass
-
-        NO_METHOD_MUTEX.synchronize do
-          dispatch[object.class] = dispatch[superklass] unless respond_to?(dispatch[object.class], true)
-        end
-
+        dispatch[object.class] = dispatch[superklass]
         dispatch_method(object)
       end
     end
