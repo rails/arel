@@ -11,6 +11,7 @@ require 'arel/math'
 require 'arel/alias_predication'
 require 'arel/order_predications'
 require 'arel/table'
+require 'arel/temporary_table'
 require 'arel/attributes'
 require 'arel/compatibility/wheres'
 
