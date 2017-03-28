@@ -44,6 +44,15 @@ module Arel
             SELECT "users"."id" FROM "users" WHERE ("users"."id" != 1 OR "users"."id" != 2)
           }
         end
+
+        it 'should handle empty arrays' do
+          relation = Table.new(:users)
+          mgr = relation.project relation[:id]
+          mgr.where relation[:id].not_eq_any([])
+          mgr.to_sql.must_be_like %{
+            SELECT "users"."id" FROM "users" WHERE FALSE
+          }
+        end
       end
 
       describe '#not_eq_all' do
@@ -58,6 +67,15 @@ module Arel
           mgr.where relation[:id].not_eq_all([1,2])
           mgr.to_sql.must_be_like %{
             SELECT "users"."id" FROM "users" WHERE ("users"."id" != 1 AND "users"."id" != 2)
+          }
+        end
+
+        it 'should handle empty arrays' do
+          relation = Table.new(:users)
+          mgr = relation.project relation[:id]
+          mgr.where relation[:id].not_eq_all([])
+          mgr.to_sql.must_be_like %{
+            SELECT "users"."id" FROM "users" WHERE TRUE
           }
         end
       end
@@ -114,6 +132,15 @@ module Arel
             SELECT "users"."id" FROM "users" WHERE ("users"."id" > 1 OR "users"."id" > 2)
           }
         end
+
+        it 'should handle empty arrays' do
+          relation = Table.new(:users)
+          mgr = relation.project relation[:id]
+          mgr.where relation[:id].gt_any([])
+          mgr.to_sql.must_be_like %{
+            SELECT "users"."id" FROM "users" WHERE FALSE
+          }
+        end
       end
 
       describe '#gt_all' do
@@ -128,6 +155,15 @@ module Arel
           mgr.where relation[:id].gt_all([1,2])
           mgr.to_sql.must_be_like %{
             SELECT "users"."id" FROM "users" WHERE ("users"."id" > 1 AND "users"."id" > 2)
+          }
+        end
+
+        it 'should handle empty arrays' do
+          relation = Table.new(:users)
+          mgr = relation.project relation[:id]
+          mgr.where relation[:id].gt_all([])
+          mgr.to_sql.must_be_like %{
+            SELECT "users"."id" FROM "users" WHERE TRUE
           }
         end
       end
@@ -173,6 +209,15 @@ module Arel
             SELECT "users"."id" FROM "users" WHERE ("users"."id" >= 1 OR "users"."id" >= 2)
           }
         end
+
+        it 'should handle empty arrays' do
+          relation = Table.new(:users)
+          mgr = relation.project relation[:id]
+          mgr.where relation[:id].gteq_any([])
+          mgr.to_sql.must_be_like %{
+            SELECT "users"."id" FROM "users" WHERE FALSE
+          }
+        end
       end
 
       describe '#gteq_all' do
@@ -187,6 +232,15 @@ module Arel
           mgr.where relation[:id].gteq_all([1,2])
           mgr.to_sql.must_be_like %{
             SELECT "users"."id" FROM "users" WHERE ("users"."id" >= 1 AND "users"."id" >= 2)
+          }
+        end
+
+        it 'should handle empty arrays' do
+          relation = Table.new(:users)
+          mgr = relation.project relation[:id]
+          mgr.where relation[:id].gteq_all([])
+          mgr.to_sql.must_be_like %{
+            SELECT "users"."id" FROM "users" WHERE TRUE
           }
         end
       end
@@ -232,6 +286,15 @@ module Arel
             SELECT "users"."id" FROM "users" WHERE ("users"."id" < 1 OR "users"."id" < 2)
           }
         end
+
+        it 'should handle empty arrays' do
+          relation = Table.new(:users)
+          mgr = relation.project relation[:id]
+          mgr.where relation[:id].lt_any([])
+          mgr.to_sql.must_be_like %{
+            SELECT "users"."id" FROM "users" WHERE FALSE
+          }
+        end
       end
 
       describe '#lt_all' do
@@ -246,6 +309,15 @@ module Arel
           mgr.where relation[:id].lt_all([1,2])
           mgr.to_sql.must_be_like %{
             SELECT "users"."id" FROM "users" WHERE ("users"."id" < 1 AND "users"."id" < 2)
+          }
+        end
+
+        it 'should handle empty arrays' do
+          relation = Table.new(:users)
+          mgr = relation.project relation[:id]
+          mgr.where relation[:id].lt_all([])
+          mgr.to_sql.must_be_like %{
+            SELECT "users"."id" FROM "users" WHERE TRUE
           }
         end
       end
@@ -291,6 +363,15 @@ module Arel
             SELECT "users"."id" FROM "users" WHERE ("users"."id" <= 1 OR "users"."id" <= 2)
           }
         end
+
+        it 'should handle empty arrays' do
+          relation = Table.new(:users)
+          mgr = relation.project relation[:id]
+          mgr.where relation[:id].lteq_any([])
+          mgr.to_sql.must_be_like %{
+            SELECT "users"."id" FROM "users" WHERE FALSE
+          }
+        end
       end
 
       describe '#lteq_all' do
@@ -305,6 +386,15 @@ module Arel
           mgr.where relation[:id].lteq_all([1,2])
           mgr.to_sql.must_be_like %{
             SELECT "users"."id" FROM "users" WHERE ("users"."id" <= 1 AND "users"."id" <= 2)
+          }
+        end
+
+        it 'should handle empty arrays' do
+          relation = Table.new(:users)
+          mgr = relation.project relation[:id]
+          mgr.where relation[:id].lteq_all([])
+          mgr.to_sql.must_be_like %{
+            SELECT "users"."id" FROM "users" WHERE TRUE
           }
         end
       end
@@ -437,6 +527,15 @@ module Arel
           mgr.where relation[:id].eq_any(values)
           values.must_equal [1,2]
         end
+
+        it 'should handle empty arrays' do
+          relation = Table.new(:users)
+          mgr = relation.project relation[:id]
+          mgr.where relation[:id].eq_any([])
+          mgr.to_sql.must_be_like %{
+            SELECT "users"."id" FROM "users" WHERE FALSE
+          }
+        end
       end
 
       describe '#eq_all' do
@@ -460,6 +559,15 @@ module Arel
           values = [1,2]
           mgr.where relation[:id].eq_all(values)
           values.must_equal [1,2]
+        end
+
+        it 'should handle empty arrays' do
+          relation = Table.new(:users)
+          mgr = relation.project relation[:id]
+          mgr.where relation[:id].eq_all([])
+          mgr.to_sql.must_be_like %{
+            SELECT "users"."id" FROM "users" WHERE TRUE
+          }
         end
       end
 
@@ -493,6 +601,15 @@ module Arel
             SELECT "users"."id" FROM "users" WHERE ("users"."name" LIKE '%chunky%' OR "users"."name" LIKE '%bacon%')
           }
         end
+
+        it 'should handle empty arrays' do
+          relation = Table.new(:users)
+          mgr = relation.project relation[:id]
+          mgr.where relation[:id].matches_any([])
+          mgr.to_sql.must_be_like %{
+            SELECT "users"."id" FROM "users" WHERE FALSE
+          }
+        end
       end
 
       describe '#matches_all' do
@@ -507,6 +624,15 @@ module Arel
           mgr.where relation[:name].matches_all(['%chunky%','%bacon%'])
           mgr.to_sql.must_be_like %{
             SELECT "users"."id" FROM "users" WHERE ("users"."name" LIKE '%chunky%' AND "users"."name" LIKE '%bacon%')
+          }
+        end
+
+        it 'should handle empty arrays' do
+          relation = Table.new(:users)
+          mgr = relation.project relation[:id]
+          mgr.where relation[:id].matches_all([])
+          mgr.to_sql.must_be_like %{
+            SELECT "users"."id" FROM "users" WHERE TRUE
           }
         end
       end
@@ -541,6 +667,15 @@ module Arel
             SELECT "users"."id" FROM "users" WHERE ("users"."name" NOT LIKE '%chunky%' OR "users"."name" NOT LIKE '%bacon%')
           }
         end
+
+        it 'should handle empty arrays' do
+          relation = Table.new(:users)
+          mgr = relation.project relation[:id]
+          mgr.where relation[:id].does_not_match_any([])
+          mgr.to_sql.must_be_like %{
+            SELECT "users"."id" FROM "users" WHERE FALSE
+          }
+        end
       end
 
       describe '#does_not_match_all' do
@@ -555,6 +690,15 @@ module Arel
           mgr.where relation[:name].does_not_match_all(['%chunky%','%bacon%'])
           mgr.to_sql.must_be_like %{
             SELECT "users"."id" FROM "users" WHERE ("users"."name" NOT LIKE '%chunky%' AND "users"."name" NOT LIKE '%bacon%')
+          }
+        end
+
+        it 'should handle empty arrays' do
+          relation = Table.new(:users)
+          mgr = relation.project relation[:id]
+          mgr.where relation[:id].does_not_match_all([])
+          mgr.to_sql.must_be_like %{
+            SELECT "users"."id" FROM "users" WHERE TRUE
           }
         end
       end
@@ -734,6 +878,15 @@ module Arel
             SELECT "users"."id" FROM "users" WHERE ("users"."id" IN (1, 2) OR "users"."id" IN (3, 4))
           }
         end
+
+        it 'should handle empty arrays' do
+          relation = Table.new(:users)
+          mgr = relation.project relation[:id]
+          mgr.where relation[:id].in_any([])
+          mgr.to_sql.must_be_like %{
+            SELECT "users"."id" FROM "users" WHERE FALSE
+          }
+        end
       end
 
       describe '#in_all' do
@@ -748,6 +901,15 @@ module Arel
           mgr.where relation[:id].in_all([[1,2], [3,4]])
           mgr.to_sql.must_be_like %{
             SELECT "users"."id" FROM "users" WHERE ("users"."id" IN (1, 2) AND "users"."id" IN (3, 4))
+          }
+        end
+
+        it 'should handle empty arrays' do
+          relation = Table.new(:users)
+          mgr = relation.project relation[:id]
+          mgr.where relation[:id].in_all([])
+          mgr.to_sql.must_be_like %{
+            SELECT "users"."id" FROM "users" WHERE TRUE
           }
         end
       end
@@ -896,6 +1058,15 @@ module Arel
             SELECT "users"."id" FROM "users" WHERE ("users"."id" NOT IN (1, 2) OR "users"."id" NOT IN (3, 4))
           }
         end
+
+        it 'should handle empty arrays' do
+          relation = Table.new(:users)
+          mgr = relation.project relation[:id]
+          mgr.where relation[:id].not_in_any([])
+          mgr.to_sql.must_be_like %{
+            SELECT "users"."id" FROM "users" WHERE FALSE
+          }
+        end
       end
 
       describe '#not_in_all' do
@@ -912,20 +1083,13 @@ module Arel
             SELECT "users"."id" FROM "users" WHERE ("users"."id" NOT IN (1, 2) AND "users"."id" NOT IN (3, 4))
           }
         end
-      end
 
-      describe '#eq_all' do
-        it 'should create a Grouping node' do
-          relation = Table.new(:users)
-          relation[:id].eq_all([1,2]).must_be_kind_of Nodes::Grouping
-        end
-
-        it 'should generate ANDs in sql' do
+        it 'should handle empty arrays' do
           relation = Table.new(:users)
           mgr = relation.project relation[:id]
-          mgr.where relation[:id].eq_all([1,2])
+          mgr.where relation[:id].not_in_all([])
           mgr.to_sql.must_be_like %{
-            SELECT "users"."id" FROM "users" WHERE ("users"."id" = 1 AND "users"."id" = 2)
+            SELECT "users"."id" FROM "users" WHERE TRUE
           }
         end
       end
