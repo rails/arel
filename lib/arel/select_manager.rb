@@ -9,8 +9,8 @@ module Arel
 
     def initialize table = nil
       super()
-      @ast   = Nodes::SelectStatement.new
-      @ctx    = @ast.cores.last
+      @ast = Nodes::SelectStatement.new
+      @ctx = @ast.cores.last
       from table
     end
 
