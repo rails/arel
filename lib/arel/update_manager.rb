@@ -25,6 +25,20 @@ module Arel
       self
     end
 
+    def offset
+      @ast.offset && @ast.offset.expr
+    end
+
+    def skip amount
+      if amount
+        @ast.offset = Nodes::Offset.new(amount)
+      else
+        @ast.offset = nil
+      end
+      self
+    end
+    alias :offset= :skip
+
     ###
     # UPDATE +table+
     def table table

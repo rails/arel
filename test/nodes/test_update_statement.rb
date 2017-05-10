@@ -25,6 +25,7 @@ describe Arel::Nodes::UpdateStatement do
       statement1.values   = false
       statement1.orders   = %w[x y z]
       statement1.limit    = 42
+      statement1.offset   = 10
       statement1.key      = 'zomg'
       statement2 = Arel::Nodes::UpdateStatement.new
       statement2.relation = 'zomg'
@@ -32,6 +33,7 @@ describe Arel::Nodes::UpdateStatement do
       statement2.values   = false
       statement2.orders   = %w[x y z]
       statement2.limit    = 42
+      statement2.offset   = 10
       statement2.key      = 'zomg'
       array = [statement1, statement2]
       assert_equal 1, array.uniq.size
@@ -44,6 +46,7 @@ describe Arel::Nodes::UpdateStatement do
       statement1.values   = false
       statement1.orders   = %w[x y z]
       statement1.limit    = 42
+      statement1.offset   = 11
       statement1.key      = 'zomg'
       statement2 = Arel::Nodes::UpdateStatement.new
       statement2.relation = 'zomg'
@@ -51,6 +54,7 @@ describe Arel::Nodes::UpdateStatement do
       statement2.values   = false
       statement2.orders   = %w[x y z]
       statement2.limit    = 42
+      statement2.offset   = 10
       statement2.key      = 'wth'
       array = [statement1, statement2]
       assert_equal 2, array.uniq.size

@@ -96,11 +96,12 @@ module Arel
         core.projections = [key]
         stmt.limit       = o.limit
         stmt.orders      = o.orders
+        stmt.offset      = o.offset
         stmt
       end
 
       def visit_Arel_Nodes_UpdateStatement o, collector
-        if o.orders.empty? && o.limit.nil?
+        if o.orders.empty? && o.limit.nil? && o.offset.nil?
           wheres = o.wheres
         else
           wheres = [Nodes::In.new(o.key, [build_subselect(o.key, o)])]

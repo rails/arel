@@ -3,7 +3,7 @@ module Arel
   module Nodes
     class UpdateStatement < Arel::Nodes::Node
       attr_accessor :relation, :wheres, :values, :orders, :limit
-      attr_accessor :key
+      attr_accessor :key, :offset
 
       def initialize
         @relation = nil
@@ -11,6 +11,7 @@ module Arel
         @values   = []
         @orders   = []
         @limit    = nil
+        @offset   = nil
         @key      = nil
       end
 
@@ -21,7 +22,7 @@ module Arel
       end
 
       def hash
-        [@relation, @wheres, @values, @orders, @limit, @key].hash
+        [@relation, @wheres, @values, @orders, @limit, @key, @offset].hash
       end
 
       def eql? other
@@ -31,6 +32,7 @@ module Arel
           self.values == other.values &&
           self.orders == other.orders &&
           self.limit == other.limit &&
+          self.offset == other.offset &&
           self.key == other.key
       end
       alias :== :eql?
