@@ -81,6 +81,10 @@ module Arel
       ::Arel::Attribute.new self, name
     end
 
+    def star
+      ::Arel.sql "\"#{name}\".*"
+    end
+
     def hash
       # Perf note: aliases and table alias is excluded from the hash
       #  aliases can have a loop back to this table breaking hashes in parent
