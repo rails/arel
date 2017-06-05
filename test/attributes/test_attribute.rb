@@ -620,6 +620,13 @@ module Arel
           node.must_equal Nodes::NotIn.new(attribute, [])
         end
 
+        it 'can be constructed with an infinite range' do
+          attribute = Attribute.new nil, nil
+          node = attribute.between(-::DateTime::Infinity.new..::DateTime::Infinity.new)
+
+          node.must_equal Nodes::NotIn.new(attribute, [])
+        end
+
         it 'can be constructed with a quoted infinite range' do
           attribute = Attribute.new nil, nil
           node = attribute.between(quoted_range(-::Float::INFINITY, ::Float::INFINITY, false))
@@ -627,6 +634,12 @@ module Arel
           node.must_equal Nodes::NotIn.new(attribute, [])
         end
 
+        it 'can be constructed with a quoted infinite date range' do
+          attribute = Attribute.new nil, nil
+          node = attribute.between(quoted_range(-::DateTime::Infinity.new, ::DateTime::Infinity.new, false))
+
+          node.must_equal Nodes::NotIn.new(attribute, [])
+        end
 
         it 'can be constructed with a range ending at Infinity' do
           attribute = Attribute.new nil, nil
@@ -638,6 +651,16 @@ module Arel
           )
         end
 
+        it 'can be constructed with a range ending at DateTime::Infinity' do
+          attribute = Attribute.new nil, nil
+          node = attribute.between(::Time.at(1234).to_datetime..::DateTime::Infinity.new)
+
+          node.must_equal Nodes::GreaterThanOrEqual.new(
+            attribute,
+            Nodes::Casted.new(::Time.at(1234).to_datetime, attribute)
+          )
+        end
+
         it 'can be constructed with a quoted range ending at Infinity' do
           attribute = Attribute.new nil, nil
           node = attribute.between(quoted_range(0, ::Float::INFINITY, false))
@@ -645,6 +668,16 @@ module Arel
           node.must_equal Nodes::GreaterThanOrEqual.new(
             attribute,
             Nodes::Quoted.new(0)
+          )
+        end
+
+        it 'can be constructed with a quoted range ending at DateTime::Infinity' do
+          attribute = Attribute.new nil, nil
+          node = attribute.between(quoted_range(::Time.at(1234).to_datetime, ::DateTime::Infinity.new, false))
+
+          node.must_equal Nodes::GreaterThanOrEqual.new(
+            attribute,
+            Nodes::Quoted.new(::Time.at(1234).to_datetime)
           )
         end
 
@@ -803,6 +836,16 @@ module Arel
           node.must_equal Nodes::LessThan.new(
             attribute,
             Nodes::Casted.new(0, attribute)
+          )
+        end
+
+        it 'can be constructed with a range ending at DateTime::Infinity' do
+          attribute = Attribute.new nil, nil
+          node = attribute.not_between(::Time.at(1234).to_datetime..::DateTime::Infinity.new)
+
+          node.must_equal Nodes::LessThan.new(
+            attribute,
+            Nodes::Casted.new(::Time.at(1234).to_datetime, attribute)
           )
         end
 
