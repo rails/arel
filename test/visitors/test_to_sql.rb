@@ -294,14 +294,14 @@ module Arel
         compile(test).must_be_like %{ "users"."bool" = 't' }
       end
 
-      it "should visit_Arel_TemporaryTable" do
-        test = TemporaryTable.new('SELECT * FROM "clients"', as: 'users')
+      it "should visit_Arel_Subquery" do
+        test = Subquery.new('SELECT * FROM "clients"', as: 'users')
         compile(test).must_be_like %{ (SELECT * FROM "clients") "users" }
       end
 
-      it "should visit_Arel_TemporaryTable" do
+      it "should visit_Arel_Subquery" do
         clients = Table.new(:clients)
-        test = TemporaryTable.new(clients.project(Arel.star), as: 'users')
+        test = Subquery.new(clients.project(Arel.star), as: 'users')
         compile(test).must_be_like %{ (SELECT * FROM "clients") "users" }
       end
 
