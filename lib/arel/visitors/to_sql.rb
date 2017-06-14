@@ -591,7 +591,7 @@ module Arel
         end
       end
 
-      def visit_Arel_TemporaryTable o, collector
+      def visit_Arel_Subquery o, collector
         collector << "("
         collector << case o.data_source
                      when String
