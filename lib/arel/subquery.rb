@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 module Arel
-  class TemporaryTable < Table
+  class Subquery < Table
     attr_accessor :data_source
 
     def initialize(data_source, as: default_name, type_caster: nil)
