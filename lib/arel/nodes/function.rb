@@ -5,6 +5,7 @@ module Arel
       include Arel::Predications
       include Arel::WindowPredications
       include Arel::OrderPredications
+      include Arel::Math
       attr_accessor :expressions, :alias, :distinct
 
       def initialize expr, aliaz = nil

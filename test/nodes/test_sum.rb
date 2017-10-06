@@ -31,4 +31,13 @@ describe Arel::Nodes::Sum do
       }
     end
   end
+
+  describe 'math' do
+    it 'should be able to use math operators' do
+      table = Arel::Table.new :users
+      (table[:id].sum / 2).to_sql.must_be_like %{
+        SUM("users"."id") / 2
+       }
+    end
+  end
 end
