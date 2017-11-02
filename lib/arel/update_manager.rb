@@ -42,7 +42,8 @@ module Arel
     end
 
     def set values
-      if String === values
+      case values
+      when String, Nodes::SqlLiteral
         @ast.values = [values]
       else
         @ast.values = values.map { |column,value|
