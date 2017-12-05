@@ -296,13 +296,11 @@ module Arel
       end
 
       def visit_Arel_Nodes_Union o, collector
-        collector << "( "
-        infix_value(o, collector, " UNION ") << " )"
+        infix_value_with_paren(o, collector, " UNION ")
       end
 
       def visit_Arel_Nodes_UnionAll o, collector
-        collector << "( "
-        infix_value(o, collector, " UNION ALL ") << " )"
+        infix_value_with_paren(o, collector, " UNION ALL ")
       end
 
       def visit_Arel_Nodes_Intersect o, collector
@@ -830,6 +828,25 @@ module Arel
         collector = visit o.left, collector
         collector << value
         visit o.right, collector
+      end
+
+      def infix_value_with_paren o, collector, value, suppress_parens = false
+        collector << '( ' unless suppress_parens
+
+        collector = if o.left.class == o.class
+                      infix_value_with_paren(o.left, collector, value, true)
+                    else
+                      visit o.left, collector
+                    end
+        collector << value
+        collector = if o.right.class == o.class
+                      infix_value_with_paren(o.right, collector, value, true)
+                    else
+                      visit o.right, collector
+                    end
+
+        collector << ' )' unless suppress_parens
+        collector
       end
 
       def aggregate name, o, collector
