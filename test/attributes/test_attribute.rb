@@ -961,6 +961,23 @@ module Arel
           }
         end
       end
+
+      describe '#to_sql' do
+        it 'should return full qualified column name' do
+          relation = Table.new(:users)
+          relation[:id].to_sql.must_be_like '"users"."id"'
+        end
+      end
+
+      describe '#to_s' do
+        it 'should return full qualified column name' do
+          rel = Table.new(:users)
+          "SUM(#{rel[:sign_in_count]}) FILTER (WHERE #{rel[:bar].eq(nil)})" \
+            .must_be_like %{
+              SUM("users"."sign_in_count") FILTER (WHERE "users"."bar" IS NULL)
+            }
+        end
+      end
     end
 
     describe 'equality' do

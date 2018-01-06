@@ -47,6 +47,7 @@ module Arel
         collector = engine.connection.visitor.accept self, collector
         collector.value
       end
+      alias :to_s :to_sql
 
       # Iterate through AST, nodes will be yielded depth-first
       def each &block

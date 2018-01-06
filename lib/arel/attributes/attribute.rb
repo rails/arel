@@ -21,6 +21,15 @@ module Arel
       def able_to_type_cast?
         relation.able_to_type_cast?
       end
+
+      # Returns full qualified table and column name for this attribute
+      # @see Arel::Visitors::ToSql#visit_Arel_Attributes_Attribute
+      def to_sql
+        relation.class.engine.connection.visitor.accept(
+          self, Arel::Collectors::SQLString.new
+        ).value
+      end
+      alias :to_s :to_sql
     end
 
     class String    < Attribute; end
