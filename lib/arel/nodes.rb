@@ -36,7 +36,8 @@ require 'arel/nodes/matches'
 require 'arel/nodes/regexp'
 
 # nary
-require 'arel/nodes/and'
+require 'arel/nodes/nary'
+require 'arel/nodes/set_operation'
 
 # function
 # FIXME: Function + Alias can be rewritten as a Function and Alias node.

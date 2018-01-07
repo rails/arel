@@ -757,7 +757,7 @@ module Arel
           attribute = Attribute.new nil, nil
           node = attribute.not_between(1..3)
 
-          node.must_equal Nodes::Grouping.new(Nodes::Or.new(
+          node.must_equal Nodes::Grouping.new(Nodes::Or.new([
             Nodes::LessThan.new(
               attribute,
               Nodes::Casted.new(1, attribute)
@@ -766,7 +766,7 @@ module Arel
               attribute,
               Nodes::Casted.new(3, attribute)
             )
-          ))
+          ]))
         end
 
         it 'can be constructed with a range starting from -Infinity' do
@@ -810,7 +810,7 @@ module Arel
           attribute = Attribute.new nil, nil
           node = attribute.not_between(0...3)
 
-          node.must_equal Nodes::Grouping.new(Nodes::Or.new(
+          node.must_equal Nodes::Grouping.new(Nodes::Or.new([
             Nodes::LessThan.new(
               attribute,
               Nodes::Casted.new(0, attribute)
@@ -819,7 +819,7 @@ module Arel
               attribute,
               Nodes::Casted.new(3, attribute)
             )
-          ))
+          ]))
         end
       end
 
@@ -843,7 +843,7 @@ module Arel
           union = mgr1.union(mgr2)
           node = relation[:id].in(union)
           node.to_sql.must_be_like %{
-            "users"."id" IN (( SELECT "users"."id" FROM "users" UNION SELECT "users"."id" FROM "users" ))
+            "users"."id" IN (( SELECT "users"."id" FROM "users" ) UNION ( SELECT "users"."id" FROM "users" ))
           }
         end
 

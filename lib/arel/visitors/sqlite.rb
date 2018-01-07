@@ -4,6 +4,21 @@ module Arel
     class SQLite < Arel::Visitors::ToSql
       private
 
+      def visit_Arel_Nodes_Union o, collector
+        join_str = o.operation ? " UNION #{o.operation.to_s.upcase} " : " UNION "
+        inject_join(o.children, collector, join_str)
+      end
+
+      # INTERSECT ALL is not supported in SQLite
+      def visit_Arel_Nodes_Intersect o, collector
+        inject_join(o.children, collector, " INTERSECT ")
+      end
+
+      # EXCEPT ALL is not supported in SQLite
+      def visit_Arel_Nodes_Except o, collector
+        inject_join(o.children, collector, " EXCEPT ")
+      end
+
       # Locks are not supported in SQLite
       def visit_Arel_Nodes_Lock o, collector
         collector

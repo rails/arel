@@ -44,12 +44,12 @@ module Arel
       end
 
       it 'dispatches properly after failing upwards' do
-        node = Nodes::Union.new(Nodes::True.new, Nodes::False.new)
-        assert_equal "( TRUE UNION FALSE )", node.to_sql
+        node = Nodes::Union.new([Nodes::True.new, Nodes::False.new])
+        assert_equal "( TRUE ) UNION ( FALSE )", node.to_sql
 
         node.first # from Nodes::Node's Enumerable mixin
 
-        assert_equal "( TRUE UNION FALSE )", node.to_sql
+        assert_equal "( TRUE ) UNION ( FALSE )", node.to_sql
       end
 
       it 'is threadsafe when implementing superclass fallback' do

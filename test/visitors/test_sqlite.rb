@@ -8,6 +8,20 @@ module Arel
         @visitor = SQLite.new Table.engine.connection_pool
       end
 
+      def compile node
+        @visitor.accept(node, Collectors::SQLString.new).value
+      end
+
+      it 'suppresses parens parenthesis on multiple unions' do
+        subnode = Nodes::Union.new [Arel.sql('left'), Arel.sql('right')]
+        node    = Nodes::Union.new [subnode, Arel.sql('topright')]
+        assert_equal 0, compile(node).scan('(').length
+
+        subnode = Nodes::Union.new [Arel.sql('left'), Arel.sql('right')]
+        node    = Nodes::Union.new [Arel.sql('topleft'), subnode]
+        assert_equal 0, compile(node).scan('(').length
+      end
+
       it 'defaults limit to -1' do
         stmt = Nodes::SelectStatement.new
         stmt.offset = Nodes::Offset.new(1)
