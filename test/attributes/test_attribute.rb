@@ -573,6 +573,19 @@ module Arel
           )
         end
 
+        it 'can be constructed with a pair' do
+          attribute = Attribute.new nil, nil
+          node = attribute.between(1, 3)
+
+          node.must_equal Nodes::Between.new(
+            attribute,
+            Nodes::And.new([
+              Nodes::Casted.new(1, attribute),
+              Nodes::Casted.new(3, attribute)
+            ])
+          )
+        end
+
         it 'can be constructed with a range starting from -Infinity' do
           attribute = Attribute.new nil, nil
           node = attribute.between(-::Float::INFINITY..3)
@@ -590,6 +603,16 @@ module Arel
           node.must_equal Nodes::LessThanOrEqual.new(
             attribute,
             Nodes::Quoted.new(3)
+          )
+        end
+
+        it 'can be constructed with parameters starting from -Infinity' do
+          attribute = Attribute.new nil, nil
+          node = attribute.between(-::Float::INFINITY, 3)
+
+          node.must_equal Nodes::LessThanOrEqual.new(
+            attribute,
+            Nodes::Casted.new(3, attribute)
           )
         end
 
@@ -627,6 +650,12 @@ module Arel
           node.must_equal Nodes::NotIn.new(attribute, [])
         end
 
+        it 'can be constructed with an infinite pair' do
+          attribute = Attribute.new nil, nil
+          node = attribute.between(-::Float::INFINITY, ::Float::INFINITY)
+
+          node.must_equal Nodes::NotIn.new(attribute, [])
+        end
 
         it 'can be constructed with a range ending at Infinity' do
           attribute = Attribute.new nil, nil
@@ -648,9 +677,35 @@ module Arel
           )
         end
 
+        it 'can be constructed with a pair ending at Infinity' do
+          attribute = Attribute.new nil, nil
+          node = attribute.between(0, ::Float::INFINITY)
+
+          node.must_equal Nodes::GreaterThanOrEqual.new(
+            attribute,
+            Nodes::Casted.new(0, attribute)
+          )
+        end
+
         it 'can be constructed with an exclusive range' do
           attribute = Attribute.new nil, nil
           node = attribute.between(0...3)
+
+          node.must_equal Nodes::And.new([
+            Nodes::GreaterThanOrEqual.new(
+              attribute,
+              Nodes::Casted.new(0, attribute)
+            ),
+            Nodes::LessThan.new(
+              attribute,
+              Nodes::Casted.new(3, attribute)
+            )
+          ])
+        end
+
+        it 'can be constructed with an exclusive pair' do
+          attribute = Attribute.new nil, nil
+          node = attribute.between(0, 3, true)
 
           node.must_equal Nodes::And.new([
             Nodes::GreaterThanOrEqual.new(
@@ -769,9 +824,35 @@ module Arel
           ))
         end
 
+        it 'can be constructed with a standard pair' do
+          attribute = Attribute.new nil, nil
+          node = attribute.not_between(1, 3)
+
+          node.must_equal Nodes::Grouping.new(Nodes::Or.new(
+            Nodes::LessThan.new(
+              attribute,
+              Nodes::Casted.new(1, attribute)
+            ),
+            Nodes::GreaterThan.new(
+              attribute,
+              Nodes::Casted.new(3, attribute)
+            )
+          ))
+        end
+
         it 'can be constructed with a range starting from -Infinity' do
           attribute = Attribute.new nil, nil
           node = attribute.not_between(-::Float::INFINITY..3)
+
+          node.must_equal Nodes::GreaterThan.new(
+            attribute,
+            Nodes::Casted.new(3, attribute)
+          )
+        end
+
+        it 'can be constructed with a pair starting from -Infinity' do
+          attribute = Attribute.new nil, nil
+          node = attribute.not_between(-::Float::INFINITY, 3)
 
           node.must_equal Nodes::GreaterThan.new(
             attribute,
@@ -809,6 +890,22 @@ module Arel
         it 'can be constructed with an exclusive range' do
           attribute = Attribute.new nil, nil
           node = attribute.not_between(0...3)
+
+          node.must_equal Nodes::Grouping.new(Nodes::Or.new(
+            Nodes::LessThan.new(
+              attribute,
+              Nodes::Casted.new(0, attribute)
+            ),
+            Nodes::GreaterThanOrEqual.new(
+              attribute,
+              Nodes::Casted.new(3, attribute)
+            )
+          ))
+        end
+
+        it 'can be constructed with an exclusive pair' do
+          attribute = Attribute.new nil, nil
+          node = attribute.not_between(0, 3, true)
 
           node.must_equal Nodes::Grouping.new(Nodes::Or.new(
             Nodes::LessThan.new(

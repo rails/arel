@@ -25,23 +25,27 @@ module Arel
       grouping_all :eq, quoted_array(others)
     end
 
-    def between other
-      if equals_quoted?(other.begin, -Float::INFINITY)
-        if equals_quoted?(other.end, Float::INFINITY)
-          not_in([])
-        elsif other.exclude_end?
-          lt(other.end)
-        else
-          lteq(other.end)
-        end
-      elsif equals_quoted?(other.end, Float::INFINITY)
-        gteq(other.begin)
-      elsif other.exclude_end?
-        gteq(other.begin).and(lt(other.end))
+    def between other, other2 = nil, exclude_end = false
+      #raise "here"
+      if other2.nil?
+        left, right, exclude_end = other.begin, other.end, other.exclude_end?
       else
-        left = quoted_node(other.begin)
-        right = quoted_node(other.end)
-        Nodes::Between.new(self, left.and(right))
+        left, right = other, other2
+      end
+      if equals_quoted?(left, -Float::INFINITY)
+        if equals_quoted?(right, Float::INFINITY)
+          not_in([])
+        elsif exclude_end
+          lt(right)
+        else
+          lteq(right)
+        end
+      elsif equals_quoted?(right, Float::INFINITY)
+        gteq(left)
+      elsif exclude_end
+        gteq(left).and(lt(right))
+      else
+        Nodes::Between.new(self, quoted_node(left).and(quoted_node(right)))
       end
     end
 
@@ -71,25 +75,26 @@ Passing a range to `#in` is deprecated. Call `#between`, instead.
       grouping_all :in, others
     end
 
-    def not_between other
-      if equals_quoted?(other.begin, -Float::INFINITY)
-        if equals_quoted?(other.end, Float::INFINITY)
-          self.in([])
-        elsif other.exclude_end?
-          gteq(other.end)
-        else
-          gt(other.end)
-        end
-      elsif equals_quoted?(other.end, Float::INFINITY)
-        lt(other.begin)
+    def not_between other, other2 = nil, exclude_end = false
+      if other2.nil?
+        left, right, exclude_end = other.begin, other.end, other.exclude_end?
       else
-        left = lt(other.begin)
-        right = if other.exclude_end?
-          gteq(other.end)
+        left, right = other, other2
+      end
+      if equals_quoted?(left, -Float::INFINITY)
+        if equals_quoted?(right, Float::INFINITY)
+          self.in([])
+        elsif exclude_end
+          gteq(right)
         else
-          gt(other.end)
+          gt(right)
         end
-        left.or(right)
+      elsif equals_quoted?(right, Float::INFINITY)
+        lt(left)
+      elsif exclude_end
+        lt(left).or(gteq(right))
+      else
+        lt(left).or(gt(right))
       end
     end
 
