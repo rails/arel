@@ -282,7 +282,7 @@ photo_clicks = Arel::Nodes::SqlLiteral.new(<<-SQL
 SQL
 )
 
-photos.project(photo_clicks.as("photo_clicks"))
+photos.project(photo_clicks.as('photos'))
 # => SELECT CASE WHEN condition1 THEN calculation1
 #    WHEN condition2 THEN calculation2
 #    WHEN condition3 THEN calculation3
