@@ -59,6 +59,48 @@ module Arel
         um = Arel::UpdateManager.new
         um.set([[table[:id], 1], [table[:name], 'hello']]).must_equal um
       end
+
+      describe 'infix operators' do
+        it 'generates proper SQL for a subtraction' do
+          table = Table.new(:users)
+          um = Arel::UpdateManager.new
+          um.table table
+          um.set(table[:age] => (table[:age] - 1).expr)
+          um.to_sql.must_be_like %{
+            UPDATE "users" SET "age" = "users"."age" - 1
+          }
+        end
+
+        it 'generates proper SQL for a sum' do
+          table = Table.new(:users)
+          um = Arel::UpdateManager.new
+          um.table table
+          um.set(table[:age] => (table[:age] + 1).expr)
+          um.to_sql.must_be_like %{
+            UPDATE "users" SET "age" = "users"."age" + 1
+          }
+        end
+
+        it 'generates proper SQL for a multiplication' do
+          table = Table.new(:users)
+          um = Arel::UpdateManager.new
+          um.table table
+          um.set(table[:salary] => table[:salary] * 1)
+          um.to_sql.must_be_like %{
+            UPDATE "users" SET "salary" = "users"."salary" * 1
+          }
+        end
+
+        it 'generates proper SQL for a division' do
+          table = Table.new(:users)
+          um = Arel::UpdateManager.new
+          um.table table
+          um.set(table[:salary] => table[:salary] / 2)
+          um.to_sql.must_be_like %{
+            UPDATE "users" SET "salary" = "users"."salary" / 2
+          }
+        end
+      end
     end
 
     describe 'table' do
