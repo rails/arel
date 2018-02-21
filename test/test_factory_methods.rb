@@ -40,6 +40,11 @@ module Arel
         assert_equal 'LOWER', lower.name
         assert_equal [:one], lower.expressions.map(&:expr)
       end
+
+      def test_create_or
+        create_or = @factory.create_or :one, :two
+        assert_instance_of Nodes::Or, create_or
+      end
     end
   end
 end
