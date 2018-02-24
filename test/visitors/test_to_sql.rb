@@ -284,6 +284,17 @@ module Arel
         }
       end
 
+      it "should visit_Arel_Nodes_Assignment with named function" do
+        column = @table["text"]
+        node = Nodes::Assignment.new(
+          Nodes::UnqualifiedColumn.new(column),
+          Nodes::NamedFunction.new('TRIM', [Nodes::UnqualifiedColumn.new(column)])
+        )
+        compile(node).must_be_like %{
+          "text" = TRIM("text")
+        }
+      end
+
       it "should visit visit_Arel_Attributes_Time" do
         attr = Attributes::Time.new(@attr.relation, @attr.name)
         compile attr
