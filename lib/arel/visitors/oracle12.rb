@@ -1,7 +1,12 @@
 # frozen_string_literal: true
+
+require "arel/visitors/oracle_in_condition"
+
 module Arel
   module Visitors
     class Oracle12 < Arel::Visitors::ToSql
+      include OracleInCondition
+
       private
 
       def visit_Arel_Nodes_SelectStatement o, collector

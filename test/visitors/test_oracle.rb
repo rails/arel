@@ -191,6 +191,26 @@ module Arel
           }
         end
       end
+
+      describe "maxiumum in condition length" do
+        it "splits IN clause values into Arel::Visitors::OracleInCondition.in_condition_limit sized chunks" do
+          Arel::Visitors::OracleInCondition.stub :in_condition_limit, 5 do
+            node = @table[:id].in([1, 2, 3, 4, 5, 6, 7, 8])
+            compile(node).must_be_like %{
+              ("users"."id" IN (1, 2, 3, 4, 5) OR "users"."id" IN (6, 7, 8))
+            }
+          end
+        end
+
+        it "splits NOT IN condition values into Arel::Visitors::Oracle.in_clause_length sized chunks" do
+          Arel::Visitors::OracleInCondition.stub :in_condition_limit, 5 do
+            node = @table[:id].not_in([1, 2, 3, 4, 5, 6, 7, 8])
+            compile(node).must_be_like %{
+              ("users"."id" NOT IN (1, 2, 3, 4, 5) AND "users"."id" NOT IN (6, 7, 8))
+            }
+          end
+        end
+      end
     end
   end
 end
