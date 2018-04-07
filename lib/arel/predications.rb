@@ -210,6 +210,8 @@ Passing a range to `#not_in` is deprecated. Call `#not_between`, instead.
     private
 
     def grouping_any method_id, others, *extras
+      return Nodes::False.new if others.empty?
+
       nodes = others.map {|expr| send(method_id, expr, *extras)}
       Nodes::Grouping.new nodes.inject { |memo,node|
         Nodes::Or.new(memo, node)
@@ -217,6 +219,8 @@ Passing a range to `#not_in` is deprecated. Call `#not_between`, instead.
     end
 
     def grouping_all method_id, others, *extras
+      return Nodes::True.new if others.empty?
+
       nodes = others.map {|expr| send(method_id, expr, *extras)}
       Nodes::Grouping.new Nodes::And.new(nodes)
     end
