@@ -65,8 +65,11 @@ module Arel
 
       describe 'serialization' do
         it 'serializes into YAML' do
-          yaml_literal = SqlLiteral.new('foo').to_yaml
-          assert_equal('foo', YAML.load(yaml_literal))
+          literal = SqlLiteral.new('foo')
+          yaml_literal = literal.to_yaml
+          revived = YAML.load(yaml_literal)
+          assert_equal(literal, revived)
+          revived.must_be_kind_of Arel::Nodes::SqlLiteral
         end
       end
     end
