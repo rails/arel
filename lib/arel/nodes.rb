@@ -32,6 +32,7 @@ require 'arel/nodes/table_alias'
 require 'arel/nodes/infix_operation'
 require 'arel/nodes/unary_operation'
 require 'arel/nodes/over'
+require 'arel/nodes/filter'
 require 'arel/nodes/matches'
 require 'arel/nodes/regexp'
 
