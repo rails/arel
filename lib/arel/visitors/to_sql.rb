@@ -210,7 +210,7 @@ module Arel
         end
 
         collector = o.cores.inject(collector) { |c,x|
-          visit_Arel_Nodes_SelectCore(x, c)
+          visit(x, c)
         }
 
         unless o.orders.empty?
@@ -293,22 +293,20 @@ module Arel
 
       def visit_Arel_Nodes_Union o, collector
         collector << "( "
-        infix_value(o, collector, " UNION ") << " )"
-      end
-
-      def visit_Arel_Nodes_UnionAll o, collector
-        collector << "( "
-        infix_value(o, collector, " UNION ALL ") << " )"
+        join_str = o.operation ? " ) UNION #{o.operation.to_s.upcase} ( " : " ) UNION ( "
+        inject_join(o.children, collector, join_str) << " )"
       end
 
       def visit_Arel_Nodes_Intersect o, collector
         collector << "( "
-        infix_value(o, collector, " INTERSECT ") << " )"
+        join_str = o.operation ? " ) INTERSECT #{o.operation.to_s.upcase} ( " : " ) INTERSECT ( "
+        inject_join(o.children, collector, join_str) << " )"
       end
 
       def visit_Arel_Nodes_Except o, collector
         collector << "( "
-        infix_value(o, collector, " EXCEPT ") << " )"
+        join_str = o.operation ? " ) EXCEPT #{o.operation.to_s.upcase} ( " : " ) EXCEPT ( "
+        inject_join(o.children, collector, join_str) << " )"
       end
 
       def visit_Arel_Nodes_NamedWindow o, collector
@@ -402,11 +400,6 @@ module Arel
       def visit_Arel_Nodes_Limit o, collector
         collector << "LIMIT "
         visit o.expr, collector
-      end
-
-      # FIXME: this does nothing on most databases, but does on MSSQL
-      def visit_Arel_Nodes_Top o, collector
-        collector
       end
 
       def visit_Arel_Nodes_Lock o, collector
@@ -636,9 +629,7 @@ module Arel
       end
 
       def visit_Arel_Nodes_Or o, collector
-        collector = visit o.left, collector
-        collector << " OR "
-        visit o.right, collector
+        inject_join o.children, collector, " OR "
       end
 
       def visit_Arel_Nodes_Assignment o, collector

@@ -10,23 +10,23 @@ module Arel
           left  = attr.eq(10)
           right = attr.eq(11)
           node  = left.or right
-          node.expr.left.must_equal left
-          node.expr.right.must_equal right
+          node.expr.children[0].must_equal left
+          node.expr.children[1].must_equal right
 
           oror = node.or(right)
-          oror.expr.left.must_equal node
-          oror.expr.right.must_equal right
+          oror.expr.children[0].must_equal node
+          oror.expr.children[1].must_equal right
         end
       end
 
       describe 'equality' do
         it 'is equal with equal ivars' do
-          array = [Or.new('foo', 'bar'), Or.new('foo', 'bar')]
+          array = [Or.new(['foo', 'bar']), Or.new(['foo', 'bar'])]
           assert_equal 1, array.uniq.size
         end
 
         it 'is not equal with different ivars' do
-          array = [Or.new('foo', 'bar'), Or.new('foo', 'baz')]
+          array = [Or.new(['foo', 'bar']), Or.new(['foo', 'baz'])]
           assert_equal 2, array.uniq.size
         end
       end

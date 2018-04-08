@@ -5,11 +5,16 @@ module Arel
 
     STRING_OR_SYMBOL_CLASS = [Symbol, String]
 
-    def initialize table = nil
+    def initialize table = nil, cores = nil
       super()
-      @ast   = Nodes::SelectStatement.new
+      @ast = if cores
+        Nodes::SelectStatement.new(cores)
+      else
+        Nodes::SelectStatement.new
+      end
+
       @ctx    = @ast.cores.last
-      from table
+      from table if table
     end
 
     def initialize_copy other
@@ -182,23 +187,16 @@ module Arel
       Nodes::SqlLiteral.new viz.accept(@ctx, Collectors::SQLString.new).value
     end
 
-    def union operation, other = nil
-      if other
-        node_class = Nodes.const_get("Union#{operation.to_s.capitalize}")
-      else
-        other = operation
-        node_class = Nodes::Union
-      end
-
-      node_class.new self.ast, other.ast
+    def union variant, other = nil
+      set_operation(:union, variant, other)
     end
 
-    def intersect other
-      Nodes::Intersect.new ast, other.ast
+    def intersect variant, other = nil
+      set_operation(:intersect, variant, other)
     end
 
-    def except other
-      Nodes::Except.new ast, other.ast
+    def except variant, other = nil
+      set_operation(:except, variant, other)
     end
     alias :minus :except
 
@@ -221,10 +219,8 @@ module Arel
     def take limit
       if limit
         @ast.limit = Nodes::Limit.new(limit)
-        @ctx.top   = Nodes::Top.new(limit)
       else
         @ast.limit = nil
-        @ctx.top   = nil
       end
       self
     end
@@ -267,6 +263,18 @@ module Arel
       else
         create_and exprs
       end
+    end
+
+    def set_operation(operation, variant, other)
+      unless other
+        other = variant
+        variant = nil
+      end
+
+      node_class = Nodes.const_get(operation.to_s.capitalize)
+      node = node_class.new([ast] + Array(other).map { |o| o.ast }, variant)
+
+      self.class.new(nil, node)
     end
   end
 end

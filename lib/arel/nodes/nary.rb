@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 module Arel
   module Nodes
-    class And < Arel::Nodes::Node
+    class Nary < Arel::Nodes::Node
       attr_reader :children
 
       def initialize children
@@ -9,12 +9,9 @@ module Arel
         @children = children
       end
 
-      def left
-        children.first
-      end
-
-      def right
-        children[1]
+      def initialize_copy other
+        super
+        @children = @children.map { |child| child.clone }
       end
 
       def hash
@@ -26,6 +23,13 @@ module Arel
           self.children == other.children
       end
       alias :== :eql?
+    end
+
+    %w{
+      And
+      Or
+    }.each do |name|
+      const_set name, Class.new(Nary)
     end
   end
 end
