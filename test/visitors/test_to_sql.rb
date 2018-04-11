@@ -123,8 +123,8 @@ module Arel
         it 'should handle false' do
           table = Table.new(:users)
           val = Nodes.build_quoted(false, table[:active])
-          sql = compile Nodes::Equality.new(val, val)
-          sql.must_be_like %{ 'f' = 'f' }
+          sql = compile Nodes::Equality.new(table[:active], val)
+          sql.must_be_like %{ "users"."active" = 'f' }
         end
 
         it 'should handle nil' do
