@@ -74,6 +74,56 @@ module Arel
           }
         end
       end
+
+      describe 'Nodes::Equality' do
+        before do
+          @table = Table.new(:users)
+        end
+
+        it "should escape strings" do
+          test = @table[:name].eq 'Aaron Patterson'
+          compile(test).must_be_like %{
+            "users"."name" = 'Aaron Patterson'
+          }
+        end
+
+        it 'should handle true' do
+          sql = compile Nodes::Equality.new(@table[:active], true)
+          sql.must_be_like %{ "users"."active" IS TRUE }
+        end
+
+        it 'should handle false' do
+          sql = compile Nodes::Equality.new(@table[:active], false)
+          sql.must_be_like %{ "users"."active" IS FALSE }
+        end
+
+        it 'should handle nil' do
+          sql = compile Nodes::Equality.new(@table[:name], nil)
+          sql.must_be_like %{ "users"."name" IS NULL }
+        end
+      end
+
+      describe 'Nodes::NotEqual' do
+        before do
+          @table = Table.new(:users)
+        end
+
+        it 'should handle true' do
+          sql = compile Nodes::NotEqual.new(@table[:active], true)
+          sql.must_be_like %{ "users"."active" IS NOT TRUE }
+        end
+
+        it 'should handle false' do
+          sql = compile Nodes::NotEqual.new(@table[:active], false)
+          sql.must_be_like %{ "users"."active" IS NOT FALSE }
+        end
+
+        it 'should handle nil' do
+          val = Nodes.build_quoted(nil, @table[:active])
+          sql = compile Nodes::NotEqual.new(@table[:name], val)
+          sql.must_be_like %{ "users"."name" IS NOT NULL }
+        end
+      end
     end
   end
 end

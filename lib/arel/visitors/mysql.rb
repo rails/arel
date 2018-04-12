@@ -81,6 +81,34 @@ module Arel
         collector << ") "
         collector
       end
+
+      def visit_Arel_Nodes_Equality o, collector
+        right = o.right
+
+        return super(o, collector) unless [true, false].include?(right)
+
+        collector = visit o.left, collector
+
+        if right
+          collector << " IS TRUE"
+        else
+          collector << " IS FALSE"
+        end
+      end
+
+      def visit_Arel_Nodes_NotEqual o, collector
+        right = o.right
+
+        return super(o, collector) unless [true, false].include?(right)
+
+        collector = visit o.left, collector
+
+        if right
+          collector << " IS NOT TRUE"
+        else
+          collector << " IS NOT FALSE"
+        end
+      end
     end
   end
 end
