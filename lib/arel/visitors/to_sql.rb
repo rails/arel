@@ -610,6 +610,19 @@ module Arel
         end
       end
 
+      def visit_Arel_Subquery o, collector
+        collector << "("
+        collector << case o.data_source
+                     when String
+                       o.data_source
+                     when Arel::SelectManager
+                       o.data_source.to_sql
+                     else
+                       o.data_source.to_s
+                     end
+        collector << ") #{quote_table_name o.name}"
+      end
+
       def visit_Arel_Nodes_In o, collector
         if Array === o.right && o.right.empty?
           collector << '1=0'

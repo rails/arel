@@ -294,6 +294,17 @@ module Arel
         compile(test).must_be_like %{ "users"."bool" = 't' }
       end
 
+      it "should visit_Arel_Subquery" do
+        test = Subquery.new('SELECT * FROM "clients"', as: 'users')
+        compile(test).must_be_like %{ (SELECT * FROM "clients") "users" }
+      end
+
+      it "should visit_Arel_Subquery" do
+        clients = Table.new(:clients)
+        test = Subquery.new(clients.project(Arel.star), as: 'users')
+        compile(test).must_be_like %{ (SELECT * FROM "clients") "users" }
+      end
+
       describe "Nodes::Matches" do
         it "should know how to visit" do
           node = @table[:name].matches('foo%')
