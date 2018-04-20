@@ -642,14 +642,13 @@ module Arel
       end
 
       def visit_Arel_Nodes_Assignment o, collector
+        collector = visit o.left, collector
+        collector << " = "
+
         case o.right
-        when Arel::Nodes::UnqualifiedColumn, Arel::Attributes::Attribute, Arel::Nodes::BindParam
-          collector = visit o.left, collector
-          collector << " = "
+        when Arel::Nodes::UnqualifiedColumn, Arel::Attributes::Attribute, Arel::Nodes::BindParam, Arel::Nodes::NamedFunction
           visit o.right, collector
         else
-          collector = visit o.left, collector
-          collector << " = "
           collector << quote(o.right).to_s
         end
       end
